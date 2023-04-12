@@ -1,11 +1,11 @@
 import java.awt.*;
 
 public class Hexagon {
-	static int SIDE_LENGTH; /* Actual side length of the hexagon */
+	static double SIDE_LENGTH; /* Actual side length of the hexagon */
 	static int HIGHLIGHT_MARGIN = 5; /* the margin (pixels) that is highlighted within the hexagon */
 	private int row, col; /* The row and col of the hexagon in the game board */
 	private int centerX, centerY; /* the coordinates of the center of the hexagon */
-	private boolean isHighlighted; /* whether or not the hexagon is highlighted */
+	public boolean isHighlighted; /* whether or not the hexagon is highlighted */
 	private Polygon hexagon; /* A Polygon-Object representing the hexagon */
 	private int type; /* what type of hexagon it is */
 	private Settlement settlement;
@@ -64,9 +64,12 @@ public class Hexagon {
 		Point [] coords = new Point[6];
 		double theta = Math.PI / 6;
 		for (int i = 0; i < 6; i++) {
-			coords[i] = new Point((int) (SIDE_LENGTH * Math.cos(theta)), (int) (SIDE_LENGTH * Math.sin(theta)));
+			coords[i] = new Point((int) (SIDE_LENGTH * Math.cos(theta) + centerX), (int) (SIDE_LENGTH * Math.sin(theta) + centerY));
 			theta += Math.PI / 3;
 		} return coords;
+	}
+	public int getType() {
+		return type;
 	}
 	/* Initializes the polygon */
 	public void initPolygon() {
@@ -91,7 +94,7 @@ public class Hexagon {
 	
 	/* Displays the hexagon (highlighted portion) */
 	public void display(Graphics g) {
-		g.setColor(Color.BLACK);
+		g.setColor(Color.YELLOW);
 		g.drawPolygon(getPolygon());
 	}
 }
