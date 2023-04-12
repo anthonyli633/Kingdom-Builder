@@ -8,8 +8,8 @@ import java.awt.image.*;
 import javax.imageio.*;
 
 public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, MouseListener {
-	static final int WIDTH = 1600, HEIGHT = 960;
-	static final int GAMEBOARD_MARGIN_X = 200, GAMEBOARD_MARGIN_Y = 125;
+	static final int WIDTH = 1600, HEIGHT = 1000;
+	static final int GAMEBOARD_MARGIN_X = 160, GAMEBOARD_MARGIN_Y = 125;
 	static final int BORDER_WIDTH = 5;
 	
 	private Gameboard board;
@@ -18,6 +18,9 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 	private ArrayList<ObjectiveCard> objectivesList = new ArrayList<ObjectiveCard> ();
 	private ObjectiveCard objective1, objective2, objective3;
 	private ArrayList<TerrainCard> deck = new ArrayList<TerrainCard> ();
+	private ArrayList<TerrainCard> discardPile = new ArrayList<TerrainCard> ();
+	
+	private int x1, y1, x2, y2;
 	
 	public KingdomBuilderPanel() {
 		addMouseListener(this);
@@ -41,34 +44,48 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 		
 		// Directions display (rectangle)
 		g.setColor(new Color(100, 100, 255));
-		g.fillRoundRect(10, 10, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH - 20, GAMEBOARD_MARGIN_Y - 20, 15, 15);
+		g.fillRoundRect(40, 10, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH - 80, GAMEBOARD_MARGIN_Y - 20, 30, 30);
 		g.setColor(new Color(255, 215, 0));
-		g.drawRoundRect(10, 10, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH - 20, GAMEBOARD_MARGIN_Y - 20, 15, 15);
+		g.drawRoundRect(40, 10, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH - 80, GAMEBOARD_MARGIN_Y - 20, 30, 30);
 		// Directions text display
 		drawCenteredString(g, "Directions", f, 0, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH, GAMEBOARD_MARGIN_Y * 2 / 3);
 		
 		// Gameboard Display
 		board.display(g, GAMEBOARD_MARGIN_X, GAMEBOARD_MARGIN_Y);
 		
+		// Deck and Discard Pile Panel Rectangle
+		g.setColor(Color.BLACK);
+		g.drawRect(5, 250, 150, 250);
+		g.drawRect(5, 500, 150, 250);
+		// Deck and Discard text
+		f = new Font(Font.SANS_SERIF, Font.BOLD, 20);
+		drawCenteredString(g, "Deck", f, 0, 155, 280);
+		drawCenteredString(g, "Discard Pile", f, 0, 155, 530);
+		// Deck and Discard images
+		BufferedImage cardBack = null;
+		try { cardBack = ImageIO.read(this.getClass().getResource("/Images/Card Back.png")); }
+		catch (IOException e) { e.printStackTrace(); }
+		if (true || !deck.isEmpty()) g.drawImage(cardBack, 20, 300, 120, 180, null);
+		
 		// Objective Cards Box (Panel) display
 		f = new Font(Font.SANS_SERIF, Font.BOLD, 20);
-		g2.drawRect(BORDER_WIDTH, GAMEBOARD_MARGIN_Y, GAMEBOARD_MARGIN_X - BORDER_WIDTH, 900);
 		// Objective Cards text
-		g.setColor(Color.CYAN);
-		g2.drawRoundRect(2 * BORDER_WIDTH, GAMEBOARD_MARGIN_Y + BORDER_WIDTH, GAMEBOARD_MARGIN_X - 3 * BORDER_WIDTH, 50, 15, 15);
 		g.setColor(Color.BLACK);
-		drawCenteredString(g, "Objective Cards", f, 0, 200, 160);
+		drawCenteredString(g, "Objective Cards", f, 1150, 1150 + 225, 25);
 		// Objective Cards Display
-		objective1.display(g, 100 - ObjectiveCard.WIDTH / 2, GAMEBOARD_MARGIN_Y + BORDER_WIDTH + 60);
-		objective2.display(g, 100 - ObjectiveCard.WIDTH / 2, GAMEBOARD_MARGIN_Y + BORDER_WIDTH + 65 + ObjectiveCard.HEIGHT);
-		objective3.display(g, 100 - ObjectiveCard.WIDTH / 2, GAMEBOARD_MARGIN_Y + BORDER_WIDTH + 70 + 2 * ObjectiveCard.HEIGHT);
+		objective1.display(g, 1263, 30);
+		objective2.display(g, 1263 - ObjectiveCard.WIDTH / 2, 30);
+		objective3.display(g, 1263 - ObjectiveCard.WIDTH, 30);
 		
 		// Player Boxes Display
-		int x = GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH;
+		int x = 1150;
 		g.drawLine(x, 210, WIDTH, 210);
 		g.drawLine(x, 210 + 375, WIDTH, 210 + 375);
 		g.drawLine(x, 210, x, HEIGHT);
 		g.drawLine((x + WIDTH) / 2, 210, (x + WIDTH) / 2, HEIGHT);
+		
+		// End Turn Display
+		
 	}
 	
 	public void drawCenteredString(Graphics g, String s, Font f, int x1, int x2, int y) {
@@ -80,9 +97,22 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 
 	@Override
 	public void mousePressed(MouseEvent e) {
+		int x = e.getX(), y = e.getY();
+		
+		long start = System.currentTimeMillis();
+		for (int i = 0; i < board.LARGE_SIZE; i++) {
+			for (int j = 0; j < board.LARGE_SIZE; j++) {
+				if (board.board[i][j].contains(x, y)) {
+					board.board[i][j].setHighlighted(true);
+				}
+			}
+		} 
+		x1 = x; y1 = y; x2 = x + 100; y2 = y + 100;
+		repaint();
+	}
+	public void mouseClicked(MouseEvent e) {
 		
 	}
-	public void mouseClicked(MouseEvent e) { }
 	public void mouseReleased(MouseEvent e) { }
 	public void mouseEntered(MouseEvent e) { }
 	public void mouseExited(MouseEvent e) { }
