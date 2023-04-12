@@ -11,6 +11,7 @@ public class Gameboard {
 	static int LARGE_WIDTH = SMALL_WIDTH * 2, LARGE_HEIGHT = SMALL_HEIGHT * 2;
 	static int LARGE_SIZE = SMALL_SIZE * 2;
 	
+	public BufferedImage [] imgs = new BufferedImage[4];
 	private int width, height; /* width and height in pixels */
 	private int SIZE; /* # of hexagons in a dimension */
 	private int topX, topY; /* the coordinates of the top-left corner */
@@ -24,7 +25,7 @@ public class Gameboard {
 		width = SMALL_WIDTH; height = SMALL_HEIGHT;
 		SIZE = SMALL_SIZE;
 		
-		Hexagon.SIDE_LENGTH = height * 2 / 31;
+		Hexagon.SIDE_LENGTH = (double) height * 2 / 31;
 		board = new Hexagon[SIZE][SIZE];
 		Scanner sc = new Scanner(file);
 		for (int i = 0; i < SIZE; i++) {
@@ -40,6 +41,11 @@ public class Gameboard {
 		width = LARGE_WIDTH; height = LARGE_HEIGHT;
 		SIZE = LARGE_SIZE;
 		
+		for (int i = 0; i < 4; i++) {
+			try { imgs[i] = ImageIO.read(this.getClass().getResource("/Images/" + names[i] + ".png")); } 
+			catch (IOException e) { e.printStackTrace(); }
+		}
+		
 		board = new Hexagon[SIZE][SIZE];
 		for (int i = 0; i < SIZE; i++) {
 			for (int j = 0; j < SIZE; j++) {
@@ -49,23 +55,36 @@ public class Gameboard {
 				if (i >= SMALL_SIZE && j >= SMALL_SIZE) board[i][j] = g4.board[i - SMALL_SIZE][j - SMALL_SIZE];
 			}
 		}
-		for (int i = 0; i < SIZE; i++)
-			for (int j = 0; j < SIZE; j++)
-				board[i][j].setCoords(getCoords(i, j).x, getCoords(i, j).y);
+		for (int i = 0; i < SIZE; i++) {
+			for (int j = 0; j < SIZE; j++) {
+				board[i][j] = new Hexagon(i, j, board[i][j].getType());
+			}
+		}
 	}
 	
 	public void display(Graphics g, int x, int y) {
 		for (int i = 0; i < 4; i++) {
 			int r = i / 2, c = i % 2;
-			BufferedImage img = null;
-			try { img = ImageIO.read(this.getClass().getResource("/Images/" + names[i] + ".png")); } 
-			catch (IOException e) { e.printStackTrace(); }
-			g.drawImage(img, x + c * (SMALL_WIDTH - (int) Math.ceil(Hexagon.SIDE_LENGTH * Math.sqrt(3) / 2)), y + r * (SMALL_HEIGHT - Hexagon.SIDE_LENGTH / 2), SMALL_WIDTH, SMALL_HEIGHT, null);
+			BufferedImage img = imgs[i];
+			g.drawImage(img, x + c * (SMALL_WIDTH - (int) Math.round(Hexagon.SIDE_LENGTH * Math.sqrt(3) / 2)), y + (int) Math.round(r * (SMALL_HEIGHT - Hexagon.SIDE_LENGTH / 2)), SMALL_WIDTH, SMALL_HEIGHT, null);
+		}
+
+		for (int i = 0; i < SIZE; i++) {
+			for (int j = 0; j < SIZE; j++) {
+				if (board[i][j].isHighlighted) board[i][j].display(g);
+			}
 		}
 	}
 	
 	/* Returns the coordiantes of a hexagon at a specific row and col */
 	public static Point getCoords(int row, int col) {
-		return new Point(0, 0);
+		int x = KingdomBuilderPanel.GAMEBOARD_MARGIN_X, y = KingdomBuilderPanel.GAMEBOARD_MARGIN_Y;
+		if (row % 2 == 0) {
+			x += (int) Math.round(Hexagon.SIDE_LENGTH * (2 * col + 1) * Math.sqrt(3) / 2);
+			y += Hexagon.SIDE_LENGTH * (3 * row / 2 + 1);
+		} else {
+			x += (int) Math.round(Hexagon.SIDE_LENGTH * (col + 1) * Math.sqrt(3));
+			y += Hexagon.SIDE_LENGTH * (6 * (row / 2 + 1) - 1) / 2;
+		} return new Point(x, y);
 	}
 }
