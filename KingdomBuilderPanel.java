@@ -19,8 +19,10 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 	private ObjectiveCard objective1, objective2, objective3;
 	private ArrayList<TerrainCard> deck = new ArrayList<TerrainCard> ();
 	private ArrayList<TerrainCard> discardPile = new ArrayList<TerrainCard> ();
+	private TerrainCard cardBack = new TerrainCard(-1);
 	
-	private int x1, y1, x2, y2;
+	private Player [] players = new Player[4];
+	private int currentPlayerID = -1;
 	
 	public KingdomBuilderPanel() {
 		addMouseListener(this);
@@ -35,6 +37,11 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 			objectivesList.add(new ObjectiveCard(i));
 		} Collections.shuffle(objectivesList);
 		objective1 = objectivesList.get(0); objective2 = objectivesList.get(1); objective3 = objectivesList.get(2);
+		
+		try { TerrainCard.CARD_BACK = ImageIO.read(this.getClass().getResource("/Images/Card Back.png")); }
+		catch (Exception e) { e.printStackTrace(); }
+		
+		for (int i = 0; i < 4; i++) players[i] = new Player(i);
 	}
 	
 	public void paint(Graphics g) {
@@ -62,10 +69,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 		drawCenteredString(g, "Deck", f, 0, 155, 280);
 		drawCenteredString(g, "Discard Pile", f, 0, 155, 530);
 		// Deck and Discard images
-		BufferedImage cardBack = null;
-		try { cardBack = ImageIO.read(this.getClass().getResource("/Images/Card Back.png")); }
-		catch (IOException e) { e.printStackTrace(); }
-		if (true || !deck.isEmpty()) g.drawImage(cardBack, 20, 300, 120, 180, null);
+		if (true || !deck.isEmpty()) cardBack.display(g, 20, 300);
 		
 		// Objective Cards Box (Panel) display
 		f = new Font(Font.SANS_SERIF, Font.BOLD, 20);
@@ -78,17 +82,13 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 		objective3.display(g, 1263 - ObjectiveCard.WIDTH, 30);
 		
 		// Player Boxes Display
-		int x = 1150;
-		g.drawLine(x, 210, WIDTH, 210);
-		g.drawLine(x, 210 + 375, WIDTH, 210 + 375);
-		g.drawLine(x, 210, x, HEIGHT);
-		g.drawLine((x + WIDTH) / 2, 210, (x + WIDTH) / 2, HEIGHT);
+		for (int i = 0; i < 4; i++) players[i].display(g);
 		
 		// End Turn Display
 		
 	}
 	
-	public void drawCenteredString(Graphics g, String s, Font f, int x1, int x2, int y) {
+	public static void drawCenteredString(Graphics g, String s, Font f, int x1, int x2, int y) {
 		g.setFont(f);
 		FontMetrics fm = g.getFontMetrics();
 		int x = (((x2 - x1) - fm.stringWidth(s)) / 2) + x1;
@@ -99,15 +99,13 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 	public void mousePressed(MouseEvent e) {
 		int x = e.getX(), y = e.getY();
 		
-		long start = System.currentTimeMillis();
-		for (int i = 0; i < board.LARGE_SIZE; i++) {
-			for (int j = 0; j < board.LARGE_SIZE; j++) {
+		for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
+			for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
 				if (board.board[i][j].contains(x, y)) {
 					board.board[i][j].setHighlighted(true);
 				}
 			}
 		} 
-		x1 = x; y1 = y; x2 = x + 100; y2 = y + 100;
 		repaint();
 	}
 	public void mouseClicked(MouseEvent e) {
