@@ -1,7 +1,7 @@
 import javax.swing.JFrame;
 
 public class KingdomBuilder extends JFrame {
-	public static int WIDTH = 1600, HEIGHT = 960;
+	public static int WIDTH = 1620, HEIGHT = 1005;
 	
 	public KingdomBuilder(String title) {
 		super(title);

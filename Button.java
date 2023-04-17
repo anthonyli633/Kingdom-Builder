@@ -38,9 +38,9 @@ public class Button {
 	public int getY() { return y; }
 
 	public boolean isClicked(int x1, int y1) {
-		return enabled && inBounds(x1, y1);
+		return enabled && contains(x1, y1);
 	}
-	public boolean inBounds(int x1, int y1) {
+	public boolean contains(int x1, int y1) {
 		return (x1 >= x && y1 >= y && x1 <= x + width && y1 <= y + height);
 	}
 

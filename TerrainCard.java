@@ -12,16 +12,21 @@ public class TerrainCard {
 	static BufferedImage CARD_BACK;
 	static BufferedImage [] cardImages;
 	
+	private boolean show;
+	private int width, height;
+	
 	private int id;
 	
 	public TerrainCard(int id) {
 		this.id = id;
+		width = WIDTH; height = HEIGHT;
 	}
 	
 	public int getID() { return id; }
+	public void setDimensions(int width, int height) { this.width = width; this.height = height; }
 	
 	public void display(Graphics g, int x, int y) {
-		if (id > 0) g.drawImage(cardImages[id], x, y, WIDTH, HEIGHT, null);
-		else g.drawImage(CARD_BACK, x, y, WIDTH, HEIGHT, null);
+		if (id > 0 && show) g.drawImage(cardImages[id], x, y, width, height, null);
+		else g.drawImage(CARD_BACK, x, y, width, height, null);
 	}
 }

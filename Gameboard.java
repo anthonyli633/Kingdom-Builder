@@ -20,6 +20,8 @@ public class Gameboard {
 	private static int [] dx = new int[6];
 	private static int [] dy = new int[6];
 	
+	public ArrayList<int []> locationTileCoords = new ArrayList<> ();
+	
 	/* Initializes a small gameboard */
 	public Gameboard(File file) throws IOException {
 		width = SMALL_WIDTH; height = SMALL_HEIGHT;
@@ -32,6 +34,9 @@ public class Gameboard {
 			for (int j = 0; j < SIZE; j++) {
 				Point p = getCoords(i, j);
 				board[i][j] = new Hexagon(i, j, sc.nextInt());
+				if (board[i][j].getType() == 7) {
+					locationTileCoords.add(new int[] {i, j});
+				}
 			}
 		} sc.close();
 	}
@@ -59,26 +64,30 @@ public class Gameboard {
 			for (int j = 0; j < SIZE; j++) {
 				board[i][j] = new Hexagon(i, j, board[i][j].getType());
 			}
-		}
+		} 
+		
+		locationTileCoords.addAll(g1.locationTileCoords);
+		locationTileCoords.addAll(g2.locationTileCoords);
+		locationTileCoords.addAll(g3.locationTileCoords);
+		locationTileCoords.addAll(g4.locationTileCoords);
 	}
 	
 	public void display(Graphics g, int x, int y) {
 		for (int i = 0; i < 4; i++) {
 			int r = i / 2, c = i % 2;
-			BufferedImage img = imgs[i];
-			g.drawImage(img, x + c * (SMALL_WIDTH - (int) Math.round(Hexagon.SIDE_LENGTH * Math.sqrt(3) / 2)), y + (int) Math.round(r * (SMALL_HEIGHT - Hexagon.SIDE_LENGTH / 2)), SMALL_WIDTH, SMALL_HEIGHT, null);
+			g.drawImage(imgs[i], x + c * (SMALL_WIDTH - (int) Math.round(Hexagon.SIDE_LENGTH * Math.sqrt(3) / 2)), y + (int) Math.round(r * (SMALL_HEIGHT - Hexagon.SIDE_LENGTH / 2)), SMALL_WIDTH, SMALL_HEIGHT, null);
 		}
 
 		for (int i = 0; i < SIZE; i++) {
 			for (int j = 0; j < SIZE; j++) {
-				if (board[i][j].isHighlighted) board[i][j].display(g);
+				board[i][j].display(g);
 			}
 		}
 	}
 	
 	/* Returns the coordiantes of a hexagon at a specific row and col */
 	public static Point getCoords(int row, int col) {
-		int x = KingdomBuilderPanel.GAMEBOARD_MARGIN_X, y = KingdomBuilderPanel.GAMEBOARD_MARGIN_Y;
+		int x = KingdomBuilderPanel.GAMEBOARD_MARGIN_X + 30, y = KingdomBuilderPanel.GAMEBOARD_MARGIN_Y;
 		if (row % 2 == 0) {
 			x += (int) Math.round(Hexagon.SIDE_LENGTH * (2 * col + 1) * Math.sqrt(3) / 2);
 			y += Hexagon.SIDE_LENGTH * (3 * row / 2 + 1);

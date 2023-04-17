@@ -7,11 +7,16 @@ public class Player {
 	private int mandatorySettlementsLeft, turnSettlementsLeft, totalSettlementsLeft;
 	private int id;
 	private TerrainCard terrainCard;
-	private ArrayList<ActionTile> actionTiles;
-	private ArrayList<int []> settlementLocations;
+	private ArrayList<LocationTile> locationTiles = new ArrayList<> ();
+	private ArrayList<int []> settlementLocations = new ArrayList<> ();
 	private boolean firstPlayer;
 	
-	public Player(int id) { totalSettlementsLeft = 40; setID(id); }
+	public Player(int id) { 
+		totalSettlementsLeft = 40; setID(id); 
+		for (int i = 0; i < 6; i++) {
+			locationTiles.add(new LocationTile(0, 0, (int) (Math.random() * LocationTile.names.length)));
+		}
+	}
 	
 	public int getScore() { return score; }
 	public int getID() { return id; }
@@ -19,7 +24,7 @@ public class Player {
 	public int getTurnSettlementsLeft() { return turnSettlementsLeft; }
 	public int getTotalSettlementsLeft() { return totalSettlementsLeft; }
 	public TerrainCard getTerrainCard() { return terrainCard; }
-	public ArrayList<ActionTile> getActionTiles() { return actionTiles; }
+	public ArrayList<LocationTile> getlocationTiles() { return locationTiles; }
 	public ArrayList<int []> getSettlementLocations() { return settlementLocations; }
 	public boolean isFirstPlayer() { return firstPlayer; }
 	
@@ -33,8 +38,8 @@ public class Player {
 		// Player Box
 		Color c = Color.BLACK;
 		int row = id / 2, col = id % 2;
-		int width = (KingdomBuilderPanel.WIDTH - 1150) / 2, height = 375;
-		int x = 1150 + col * width, y = 210 + row * height;
+		int width = (KingdomBuilderPanel.WIDTH - KingdomBuilderPanel.RHS_START_X - 20) / 2, height = 375;
+		int x = KingdomBuilderPanel.RHS_START_X + col * width, y = 210 + row * height;
 		g.drawRect(x, y, width, height);
 		
 		Font f = new Font(Font.SANS_SERIF, Font.BOLD, 20);
@@ -43,10 +48,16 @@ public class Player {
 		
 		// Player text
 		KingdomBuilderPanel.drawCenteredString(g, toString(), f, x, x + width, y + 40);
+		// Card
 		x = x + width / 2 - TerrainCard.WIDTH / 2; y += 50;
 		g.drawImage(TerrainCard.CARD_BACK, x, y, TerrainCard.WIDTH, TerrainCard.HEIGHT, null);
 		
-		
+		for (int i = 0; i < locationTiles.size(); i++) {
+			int row1 = i / 4, col1 = i % 4;
+			x = KingdomBuilderPanel.RHS_START_X + col * width + 15 + col1 * 50;
+			y = 262 + row * height + TerrainCard.HEIGHT + row1 * 53;
+			locationTiles.get(i).display(g, x, y);
+		}
 	}
 	public String toString() { return "Player " + (id + 1) + ": " + score + " Gold"; }
 }

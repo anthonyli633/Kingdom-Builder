@@ -1,14 +1,19 @@
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class Hexagon {
 	static double SIDE_LENGTH; /* Actual side length of the hexagon */
 	static int HIGHLIGHT_MARGIN = 5; /* the margin (pixels) that is highlighted within the hexagon */
+	static BufferedImage castle;
+	
 	private int row, col; /* The row and col of the hexagon in the game board */
 	private int centerX, centerY; /* the coordinates of the center of the hexagon */
 	public boolean isHighlighted; /* whether or not the hexagon is highlighted */
+	public boolean isDarkened;
 	private Polygon hexagon; /* A Polygon-Object representing the hexagon */
 	private int type; /* what type of hexagon it is */
 	private Settlement settlement;
+	public LocationTile locationTile;
 	
 	/* Key:
 	 * 0 - Desert
@@ -18,7 +23,7 @@ public class Hexagon {
 	 * 4 - Canyon
 	 * 5 - Flowers
 	 * 6 - Mountains
-	 * 7 - Action Tile
+	 * 7 - Location Tile
 	 * 8 - Castle
 	 */
 	
@@ -46,6 +51,9 @@ public class Hexagon {
 	/* Sets whether or not the hexagon is highlighted */
 	public void setHighlighted(boolean bool) {
 		isHighlighted = bool;
+	}
+	public void setDarkened(boolean bool) {
+		isDarkened = bool;
 	}
 	/* Gets the row of the hexagon */
 	public int getRow() {
@@ -94,7 +102,22 @@ public class Hexagon {
 	
 	/* Displays the hexagon (highlighted portion) */
 	public void display(Graphics g) {
-		g.setColor(Color.YELLOW);
-		g.drawPolygon(getPolygon());
+		if (isDarkened) {
+			g.setColor(new Color(0, 0, 0, 100));
+			g.fillPolygon(getPolygon());
+		} 
+		if (locationTile != null) {
+			int topLeftX = centerX - (int) Math.round(SIDE_LENGTH * Math.sqrt(3) / 2), topLeftY = (int) (centerY - SIDE_LENGTH);
+			locationTile.display(g, topLeftX, topLeftY);
+		}
+		if (type == 8) {
+			int topLeftX = centerX - (int) Math.round(SIDE_LENGTH * Math.sqrt(3) / 2), topLeftY = (int) (centerY - SIDE_LENGTH);
+			g.drawImage(castle, topLeftX, topLeftY - 1, (int) Math.round(SIDE_LENGTH * Math.sqrt(3)), (int) (2 * SIDE_LENGTH), null);
+		}
+		
+		if (isHighlighted) {
+			g.setColor(Color.YELLOW);
+			g.drawPolygon(getPolygon());
+		}
 	}
 }
