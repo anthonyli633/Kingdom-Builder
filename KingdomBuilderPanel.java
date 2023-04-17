@@ -24,10 +24,10 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 
     private Player [] players = new Player[4];
     private int currentPlayerID = -1;
-    
+
     private BufferedImage summary1, summary2, summary3, summary4;
-    private BufferedImage background;
-    
+    private BufferedImage background, frame;
+
     private Button continueButton, endTurnButton;
 
     public KingdomBuilderPanel() {
@@ -51,55 +51,56 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         catch (Exception e) { e.printStackTrace(); }
         cardBack.setDimensions(100, 150);
         try {
-        	for (int i = 0; i < LocationTile.names.length; i++) {
-        		LocationTile.images[i] = ImageIO.read(this.getClass().getResource("/Images/Location Tile - " + LocationTile.names[i] + ".png"));
-        	}
+            for (int i = 0; i < LocationTile.names.length; i++) {
+                LocationTile.images[i] = ImageIO.read(this.getClass().getResource("/Images/Location Tile - " + LocationTile.names[i] + ".png"));
+            }
         } catch (Exception e) { e.printStackTrace(); }
         try {
-        	Hexagon.castle = ImageIO.read(this.getClass().getResource("/Images/Castle.png"));
+            Hexagon.castle = ImageIO.read(this.getClass().getResource("/Images/Castle.png"));
         } catch (Exception e) { e.printStackTrace(); }
         try {
-			BufferedImage img1 = ImageIO.read(this.getClass().getResource("/Images/button.png"));
-			BufferedImage img2 = ImageIO.read(this.getClass().getResource("/Images/button (2).png"));
-			BufferedImage img3 = ImageIO.read(this.getClass().getResource("/Images/button (1).png"));
-			continueButton = new Button(img1, img2, img3);
-			continueButton.setWidth(140); continueButton.setHeight(50);
-			continueButton.setCenterCoords(1050, 925);
-			continueButton.setEnabled(true);
-		} catch (Exception e) { e.printStackTrace(); }
-        try {
-        	background = ImageIO.read(this.getClass().getResource("/Images/Light Wood Background.jpg"));
+            BufferedImage img1 = ImageIO.read(this.getClass().getResource("/Images/button.png"));
+            BufferedImage img2 = ImageIO.read(this.getClass().getResource("/Images/button (2).png"));
+            BufferedImage img3 = ImageIO.read(this.getClass().getResource("/Images/button (1).png"));
+            continueButton = new Button(img1, img2, img3);
+            continueButton.setWidth(140); continueButton.setHeight(50);
+            continueButton.setCenterCoords(1050, 925);
+            continueButton.setEnabled(true);
         } catch (Exception e) { e.printStackTrace(); }
-        
+        try {
+            background = ImageIO.read(this.getClass().getResource("/Images/Light Wood Background.jpg"));
+            frame = ImageIO.read(this.getClass().getResource("/Images/Dark Wood Background.png"));
+        } catch (Exception e) { e.printStackTrace(); }
+
         for (int i = 0; i < 4; i++) players[i] = new Player(i);
-        
+
         // Set location Tiles
         ArrayList<Integer> locationTilesList = new ArrayList<Integer> ();
         for (int i = 0; i < LocationTile.names.length; i++) locationTilesList.add(i);
         Collections.shuffle(locationTilesList);
         for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
-        	for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
-        		if (board.board[i][j].getType() == 7) {
-        			if (i < Gameboard.SMALL_SIZE && j < Gameboard.SMALL_SIZE) board.board[i][j].locationTile = new LocationTile(i, j, locationTilesList.get(0));
-        			if (i < Gameboard.SMALL_SIZE && j >= Gameboard.SMALL_SIZE) board.board[i][j].locationTile = new LocationTile(i, j, locationTilesList.get(1));
-        			if (i >= Gameboard.SMALL_SIZE && j < Gameboard.SMALL_SIZE) board.board[i][j].locationTile = new LocationTile(i, j, locationTilesList.get(2));
-        			if (i >= Gameboard.SMALL_SIZE && j >= Gameboard.SMALL_SIZE) board.board[i][j].locationTile = new LocationTile(i, j, locationTilesList.get(3));
-        		}
-        	}
+            for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
+                if (board.board[i][j].getType() == 7) {
+                    if (i < Gameboard.SMALL_SIZE && j < Gameboard.SMALL_SIZE) board.board[i][j].locationTile = new LocationTile(i, j, locationTilesList.get(0));
+                    if (i < Gameboard.SMALL_SIZE && j >= Gameboard.SMALL_SIZE) board.board[i][j].locationTile = new LocationTile(i, j, locationTilesList.get(1));
+                    if (i >= Gameboard.SMALL_SIZE && j < Gameboard.SMALL_SIZE) board.board[i][j].locationTile = new LocationTile(i, j, locationTilesList.get(2));
+                    if (i >= Gameboard.SMALL_SIZE && j >= Gameboard.SMALL_SIZE) board.board[i][j].locationTile = new LocationTile(i, j, locationTilesList.get(3));
+                }
+            }
         }
         try {
-        	summary1 = ImageIO.read(this.getClass().getResource("/Images/Summary Location Tile - " + LocationTile.names[locationTilesList.get(0)] + ".png"));
-        	summary2 = ImageIO.read(this.getClass().getResource("/Images/Summary Location Tile - " + LocationTile.names[locationTilesList.get(1)] + ".png"));
-        	summary3 = ImageIO.read(this.getClass().getResource("/Images/Summary Location Tile - " + LocationTile.names[locationTilesList.get(2)] + ".png"));
-        	summary4 = ImageIO.read(this.getClass().getResource("/Images/Summary Location Tile - " + LocationTile.names[locationTilesList.get(3)] + ".png"));
+            summary1 = ImageIO.read(this.getClass().getResource("/Images/Summary Location Tile - " + LocationTile.names[locationTilesList.get(0)] + ".png"));
+            summary2 = ImageIO.read(this.getClass().getResource("/Images/Summary Location Tile - " + LocationTile.names[locationTilesList.get(1)] + ".png"));
+            summary3 = ImageIO.read(this.getClass().getResource("/Images/Summary Location Tile - " + LocationTile.names[locationTilesList.get(2)] + ".png"));
+            summary4 = ImageIO.read(this.getClass().getResource("/Images/Summary Location Tile - " + LocationTile.names[locationTilesList.get(3)] + ".png"));
         } catch(Exception e) { e.printStackTrace(); }
     }
 
     public void paint(Graphics g) {
-    	g.drawImage(background, 0, 0, WIDTH, HEIGHT, null);
-    	g.setColor(new Color(255, 255, 255, 150));
-    	g.fillRect(0, 0, WIDTH, HEIGHT);
-    	
+        g.drawImage(background, 0, 0, WIDTH, HEIGHT, null);
+        g.setColor(new Color(255, 255, 255, 150));
+        g.fillRect(0, 0, WIDTH, HEIGHT);
+
         Graphics2D g2 = (Graphics2D) g;
         g2.setStroke(new BasicStroke(BORDER_WIDTH));
         Font f = new Font(Font.SANS_SERIF, Font.BOLD, 48);
@@ -113,6 +114,9 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         drawCenteredString(g, "Directions", f, 40, 40 + GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH, GAMEBOARD_MARGIN_Y * 2 / 3);
 
         // Gameboard Display
+        g.drawImage(frame, GAMEBOARD_MARGIN_X + 10, GAMEBOARD_MARGIN_Y - 20, Gameboard.LARGE_WIDTH + 15, Gameboard.LARGE_HEIGHT + 25, null);
+        g.setColor(new Color(255, 255, 255, 50));
+        g.fillRect(GAMEBOARD_MARGIN_X + 10, GAMEBOARD_MARGIN_Y - 20, Gameboard.LARGE_WIDTH + 15, Gameboard.LARGE_HEIGHT + 25);
         board.display(g, GAMEBOARD_MARGIN_X + 30, GAMEBOARD_MARGIN_Y);
 
         // Deck and Discard Pile Panel Rectangle
@@ -139,29 +143,29 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         if (objective3.isEnlarged()) objective3.display(g);
         if (objective2.isEnlarged()) objective2.display(g);
         if (objective1.isEnlarged()) objective1.display(g);
-        
+
         // Summary Location Cards
         int width = 100, height = 93;
         g.drawImage(summary1, GAMEBOARD_MARGIN_X / 2 - width / 2, GAMEBOARD_MARGIN_Y - 3, width, height, null);
         g.drawImage(summary2, GAMEBOARD_MARGIN_X / 2 - width / 2, GAMEBOARD_MARGIN_Y + height, width, height, null);
         g.drawImage(summary3, GAMEBOARD_MARGIN_X / 2 - width / 2, 710, width, height, null);
         g.drawImage(summary4, GAMEBOARD_MARGIN_X / 2 - width / 2, 715 + height, width, height, null);
-        
+
         // Continue Button Display
         continueButton.display(g);
     }
-    
+
     public static void drawCenteredString(Graphics g, String s, Font f, int x1, int x2, int y) {
         g.setFont(f);
         FontMetrics fm = g.getFontMetrics();
         int x = (((x2 - x1) - fm.stringWidth(s)) / 2) + x1;
         g.drawString(s, x, y);
     }
-    
-	public void clickButton(int x, int y) {
+
+    public void clickButton(int x, int y) {
         if (continueButton.isClicked(x, y)) {
-        	continueButton.setEnabled(false);
-        	continueButton.setHovering(false);
+            continueButton.setEnabled(false);
+            continueButton.setHovering(false);
         }
         repaint();
     }
@@ -169,7 +173,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     @Override
     public void mousePressed(MouseEvent e) {
         int x = e.getX(), y = e.getY();
-        
+
         clickButton(x, y);
         for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
             for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
@@ -191,9 +195,9 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 
     }
     public void mouseReleased(MouseEvent e) {
-    	if (!continueButton.isEnabled()) {
-    		continueButton.setEnabled(true);
-    	}
+        if (!continueButton.isEnabled()) {
+            continueButton.setEnabled(true);
+        }
     }
     public void mouseEntered(MouseEvent e) { }
     public void mouseExited(MouseEvent e) { }
@@ -205,10 +209,10 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         if (objective1.contains(x, y)) objective1.enlarge();
         else if (objective2.contains(x, y)) objective2.enlarge();
         else if (objective3.contains(x, y)) objective3.enlarge();
-        
+
         continueButton.setHovering(continueButton.contains(x, y));
         repaint();
     }
-    
+
     public void mouseDragged(MouseEvent e) { }
 }
