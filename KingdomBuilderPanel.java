@@ -8,8 +8,8 @@ import java.awt.image.*;
 import javax.imageio.*;
 
 public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, MouseListener {
-    static final int WIDTH = 1620, HEIGHT = 1000;
-    static final int GAMEBOARD_MARGIN_X = 150, GAMEBOARD_MARGIN_Y = 105;
+    static final int WIDTH = 1620, HEIGHT = 1030;
+    static int GAMEBOARD_MARGIN_X = 150, GAMEBOARD_MARGIN_Y = 130;
     static final int BORDER_WIDTH = 5;
     static final int RHS_START_X = 1150;
 
@@ -26,7 +26,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     private int currentPlayerID = -1;
 
     private BufferedImage summary1, summary2, summary3, summary4;
-    private BufferedImage background, frame;
+    private BufferedImage background, frame, interior;
 
     private Button continueButton, endTurnButton;
 
@@ -64,12 +64,13 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             BufferedImage img3 = ImageIO.read(this.getClass().getResource("/Images/button (1).png"));
             continueButton = new Button(img1, img2, img3);
             continueButton.setWidth(140); continueButton.setHeight(50);
-            continueButton.setCenterCoords(1050, 925);
+            continueButton.setCenterCoords(1070, 965);
             continueButton.setEnabled(true);
         } catch (Exception e) { e.printStackTrace(); }
         try {
             background = ImageIO.read(this.getClass().getResource("/Images/Light Wood Background.jpg"));
             frame = ImageIO.read(this.getClass().getResource("/Images/Dark Wood Background.png"));
+            interior = ImageIO.read(this.getClass().getResource("/Images/Abstract Red Background.png"));
         } catch (Exception e) { e.printStackTrace(); }
 
         for (int i = 0; i < 4; i++) players[i] = new Player(i);
@@ -106,18 +107,21 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         Font f = new Font(Font.SANS_SERIF, Font.BOLD, 48);
 
         // Directions display (rectangle)
+        GAMEBOARD_MARGIN_Y = 130;
         g.setColor(new Color(100, 100, 255));
-        g.fillRoundRect(40, 10, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH, GAMEBOARD_MARGIN_Y - 20, 30, 30);
+        g.fillRoundRect(40, 5, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH, GAMEBOARD_MARGIN_Y - 45, 30, 30);
         g.setColor(new Color(255, 215, 0));
-        g.drawRoundRect(40, 10, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH, GAMEBOARD_MARGIN_Y - 20, 30, 30);
+        g.drawRoundRect(40, 5, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH, GAMEBOARD_MARGIN_Y - 45, 30, 30);
         // Directions text display
-        drawCenteredString(g, "Directions", f, 40, 40 + GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH, GAMEBOARD_MARGIN_Y * 2 / 3);
+        drawCenteredString(g, "Directions", f, 40, 40 + GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH, (GAMEBOARD_MARGIN_Y - 25) * 2 / 3);
 
         // Gameboard Display
-        g.drawImage(frame, GAMEBOARD_MARGIN_X + 10, GAMEBOARD_MARGIN_Y - 20, Gameboard.LARGE_WIDTH + 15, Gameboard.LARGE_HEIGHT + 25, null);
-        g.setColor(new Color(255, 255, 255, 50));
-        g.fillRect(GAMEBOARD_MARGIN_X + 10, GAMEBOARD_MARGIN_Y - 20, Gameboard.LARGE_WIDTH + 15, Gameboard.LARGE_HEIGHT + 25);
+        g.drawImage(frame, GAMEBOARD_MARGIN_X, GAMEBOARD_MARGIN_Y - 30, Gameboard.LARGE_WIDTH + 35, Gameboard.LARGE_HEIGHT + 45, null);
+        g.setColor(new Color(255, 255, 255, 25));
+        g.fillRect(GAMEBOARD_MARGIN_X, GAMEBOARD_MARGIN_Y - 30, Gameboard.LARGE_WIDTH + 35, Gameboard.LARGE_HEIGHT + 45);
+        g.drawImage(interior, GAMEBOARD_MARGIN_X + 10, GAMEBOARD_MARGIN_Y - 20, Gameboard.LARGE_WIDTH + 15, Gameboard.LARGE_HEIGHT + 25, null);
         board.display(g, GAMEBOARD_MARGIN_X + 30, GAMEBOARD_MARGIN_Y);
+        GAMEBOARD_MARGIN_Y = 110;
 
         // Deck and Discard Pile Panel Rectangle
         g.setColor(Color.BLACK);
