@@ -70,7 +70,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         try {
             background = ImageIO.read(this.getClass().getResource("/Images/Light Wood Background.jpg"));
             frame = ImageIO.read(this.getClass().getResource("/Images/Dark Wood Background.png"));
-            interior = ImageIO.read(this.getClass().getResource("/Images/Abstract Red Background.png"));
+            interior = ImageIO.read(this.getClass().getResource("/Images/Ocean Background.png"));
         } catch (Exception e) { e.printStackTrace(); }
 
         for (int i = 0; i < 4; i++) players[i] = new Player(i);
