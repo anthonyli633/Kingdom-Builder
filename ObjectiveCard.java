@@ -48,12 +48,16 @@ public class ObjectiveCard {
 		
 	}
 	
+	public int getID() { return id; }
+	
 	public void setCoords(int x, int y) { topLeftX = x; topLeftY = y; }
 	public void enlarge() { width *= 2; height *= 2; }
 	public void reset() { width = WIDTH; height = HEIGHT; }
 	
 	public boolean isEnlarged() { return width > WIDTH; }
 	public boolean contains(int x, int y) { return x >= topLeftX && y >= topLeftY && x <= topLeftX + width && y <= topLeftY + height; }
+	
+	public String toString() { return names[id]; }
 	
 	public static int scoreFisherman(Gameboard board, Player p) { return 0; }
 	public static int scoreMerchant(Gameboard board, Player p) { return 0; }
