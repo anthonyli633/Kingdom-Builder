@@ -5,11 +5,12 @@ import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.awt.geom.AffineTransform;
 import javax.imageio.*;
 
 public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, MouseListener {
-    static final int WIDTH = 1620, HEIGHT = 1030;
-    static int GAMEBOARD_MARGIN_X = 150, GAMEBOARD_MARGIN_Y = 130;
+    static final int WIDTH = 1800, HEIGHT = 1030;
+    static int GAMEBOARD_MARGIN_X = 1720 / 2 - Gameboard.SMALL_WIDTH - 35 / 2, GAMEBOARD_MARGIN_Y = HEIGHT / 2 - Gameboard.SMALL_HEIGHT;
     static final int BORDER_WIDTH = 5;
     static final int RHS_START_X = 1150;
 
@@ -26,11 +27,13 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     private int currentPlayerID = -1;
 
     private BufferedImage summary1, summary2, summary3, summary4;
-    private BufferedImage background, frame, interior;
+    private BufferedImage background, frame, interior, strip;
+    private BufferedImage [] objectiveIcons;
 
     private Button continueButton, endTurnButton;
 
     public KingdomBuilderPanel() {
+    	System.out.println(GAMEBOARD_MARGIN_X);
         addMouseListener(this);
         addMouseMotionListener(this);
 
@@ -64,13 +67,18 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             BufferedImage img3 = ImageIO.read(this.getClass().getResource("/Images/button (1).png"));
             continueButton = new Button(img1, img2, img3);
             continueButton.setWidth(140); continueButton.setHeight(50);
-            continueButton.setCenterCoords(1070, 965);
+            continueButton.setCenterCoords(1700, 965);
             continueButton.setEnabled(true);
         } catch (Exception e) { e.printStackTrace(); }
         try {
             background = ImageIO.read(this.getClass().getResource("/Images/Light Wood Background.jpg"));
             frame = ImageIO.read(this.getClass().getResource("/Images/Dark Wood Background.png"));
             interior = ImageIO.read(this.getClass().getResource("/Images/Ocean Background.png"));
+            strip = ImageIO.read(this.getClass().getResource("/Images/Light Wood Strip.png"));
+            objectiveIcons = new BufferedImage[ObjectiveCard.names.length];
+            for (int i = 0; i < ObjectiveCard.names.length; i++) {
+            	objectiveIcons[i] = ImageIO.read(this.getClass().getResource("/Images/" + ObjectiveCard.names[i] + " Icon.png"));
+            }
         } catch (Exception e) { e.printStackTrace(); }
 
         for (int i = 0; i < 4; i++) players[i] = new Player(i);
@@ -107,7 +115,6 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         Font f = new Font(Font.SANS_SERIF, Font.BOLD, 48);
 
         // Directions display (rectangle)
-        GAMEBOARD_MARGIN_Y = 130;
         g.setColor(new Color(100, 100, 255));
         g.fillRoundRect(40, 5, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH, GAMEBOARD_MARGIN_Y - 45, 30, 30);
         g.setColor(new Color(255, 215, 0));
@@ -121,7 +128,6 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         g.fillRect(GAMEBOARD_MARGIN_X, GAMEBOARD_MARGIN_Y - 30, Gameboard.LARGE_WIDTH + 35, Gameboard.LARGE_HEIGHT + 45);
         g.drawImage(interior, GAMEBOARD_MARGIN_X + 10, GAMEBOARD_MARGIN_Y - 20, Gameboard.LARGE_WIDTH + 15, Gameboard.LARGE_HEIGHT + 25, null);
         board.display(g, GAMEBOARD_MARGIN_X + 30, GAMEBOARD_MARGIN_Y);
-        GAMEBOARD_MARGIN_Y = 110;
 
         // Deck and Discard Pile Panel Rectangle
         g.setColor(Color.BLACK);
@@ -137,26 +143,49 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         // Player Boxes Display
         for (int i = 0; i < 4; i++) players[i].display(g);
 
-        // Objective Cards Box (Panel) display
+//        // Objective Cards Box (Panel) display
         f = new Font(Font.SANS_SERIF, Font.BOLD, 20);
-        // Objective Cards text
-        g.setColor(Color.BLACK);
-        drawCenteredString(g, "Objective Cards", f, RHS_START_X, RHS_START_X + 225, 25);
-        // Objective Cards Display
-        objective3.display(g); objective2.display(g); objective1.display(g);
-        if (objective3.isEnlarged()) objective3.display(g);
-        if (objective2.isEnlarged()) objective2.display(g);
-        if (objective1.isEnlarged()) objective1.display(g);
-
+//        // Objective Cards text
+//        g.setColor(Color.BLACK);
+//        drawCenteredString(g, "Objective Cards", f, RHS_START_X, RHS_START_X + 225, 25);
+//        // Objective Cards Display
+//        objective3.display(g); objective2.display(g); objective1.display(g);
+//        if (objective3.isEnlarged()) objective3.display(g);
+//        if (objective2.isEnlarged()) objective2.display(g);
+//        if (objective1.isEnlarged()) objective1.display(g);
+        
         // Summary Location Cards
         int width = 100, height = 93;
-        g.drawImage(summary1, GAMEBOARD_MARGIN_X / 2 - width / 2, GAMEBOARD_MARGIN_Y - 3, width, height, null);
-        g.drawImage(summary2, GAMEBOARD_MARGIN_X / 2 - width / 2, GAMEBOARD_MARGIN_Y + height, width, height, null);
-        g.drawImage(summary3, GAMEBOARD_MARGIN_X / 2 - width / 2, 710, width, height, null);
-        g.drawImage(summary4, GAMEBOARD_MARGIN_X / 2 - width / 2, 715 + height, width, height, null);
+        g.drawImage(summary1, 75 - width / 2, 80, width, height, null);
+        g.drawImage(summary2, 75 - width / 2, 85 + height, width, height, null);
+        g.drawImage(summary3, 75 - width / 2, 710, width, height, null);
+        g.drawImage(summary4, 75 - width / 2, 715 + height, width, height, null);
 
         // Continue Button Display
         continueButton.display(g);
+        
+        g.drawImage(strip, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 50, Gameboard.LARGE_HEIGHT + 45, null);
+        g.setColor(new Color(119, 47, 47));
+        g.drawRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 50, Gameboard.LARGE_HEIGHT + 45);
+        g.setColor(new Color(242, 235, 205, 200));
+        g.fillRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 50, Gameboard.LARGE_HEIGHT + 45);
+        
+        int gap = (Gameboard.LARGE_HEIGHT + 45) / 3;
+        g.setColor(Color.BLACK);
+        ObjectiveCard [] objectives = new ObjectiveCard[] { objective1, objective2, objective3 };
+        for (int i = 0; i < 3; i++) {
+        	int y = getX(g, ObjectiveCard.names[objective1.getID()], f, GAMEBOARD_MARGIN_Y - 30 + gap * i, GAMEBOARD_MARGIN_Y - 30 + gap * (i + 1), 0) - 10;
+        	g.drawImage(objectiveIcons[objectives[i].getID()], GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 280, y, 30, 30, null);
+        }
+        
+        AffineTransform at = new AffineTransform();
+        at.rotate(Math.PI / 2);
+        g2.setTransform(at);
+        
+        for (int i = 0; i < 3; i++) {
+        	int x = getX(g, ObjectiveCard.names[objective1.getID()], f, GAMEBOARD_MARGIN_Y - 30 + gap * i, GAMEBOARD_MARGIN_Y - 30 + gap * (i + 1), 0) + 30;
+        	g.drawString(objectives[i].toString(), x, -(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 285));
+        }
     }
 
     public static void drawCenteredString(Graphics g, String s, Font f, int x1, int x2, int y) {
@@ -164,6 +193,12 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         FontMetrics fm = g.getFontMetrics();
         int x = (((x2 - x1) - fm.stringWidth(s)) / 2) + x1;
         g.drawString(s, x, y);
+    }
+    public static int getX(Graphics g, String s, Font f, int x1, int x2, int y) {
+        g.setFont(f);
+        FontMetrics fm = g.getFontMetrics();
+        int x = (((x2 - x1) - fm.stringWidth(s)) / 2) + x1;
+        return x;
     }
 
     public void clickButton(int x, int y) {
@@ -208,14 +243,14 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        int x = e.getX(), y = e.getY();
-        objective1.reset(); objective2.reset(); objective3.reset();
-        if (objective1.contains(x, y)) objective1.enlarge();
-        else if (objective2.contains(x, y)) objective2.enlarge();
-        else if (objective3.contains(x, y)) objective3.enlarge();
-
-        continueButton.setHovering(continueButton.contains(x, y));
-        repaint();
+//        int x = e.getX(), y = e.getY();
+//        objective1.reset(); objective2.reset(); objective3.reset();
+//        if (objective1.contains(x, y)) objective1.enlarge();
+//        else if (objective2.contains(x, y)) objective2.enlarge();
+//        else if (objective3.contains(x, y)) objective3.enlarge();
+//
+//        continueButton.setHovering(continueButton.contains(x, y));
+//        repaint();
     }
 
     public void mouseDragged(MouseEvent e) { }
