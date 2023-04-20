@@ -35,7 +35,7 @@ public class Gameboard {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 Point p = getCoords(i, j);
-                board[i][j] = new Hexagon(i, j, sc.nextInt());
+                board[i][j] = new Hexagon(i, j, Hexagon.conversion[sc.nextInt()]);
                 if (board[i][j].getType() == 7) {
                     locationTileCoords.add(new int[] {i, j});
                 }
