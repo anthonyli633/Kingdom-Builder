@@ -24,16 +24,20 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     private TerrainCard cardBack = new TerrainCard(-1);
 
     private Player [] players = new Player[4];
-    private int currentPlayerID = -1;
+    static int currentPlayerID = 0;
 
     private BufferedImage summary1, summary2, summary3, summary4;
-    private BufferedImage background, frame, interior, strip;
+    private BufferedImage background, frame, interior, strip, leftArrow;
     private BufferedImage [] objectiveIcons;
+    
+    private boolean isObjectiveExpanded;
+    private Rectangle expandPanel;
 
     private Button continueButton, endTurnButton;
+    
+    GameState state;
 
     public KingdomBuilderPanel() {
-    	System.out.println(GAMEBOARD_MARGIN_X);
         addMouseListener(this);
         addMouseMotionListener(this);
 
@@ -49,7 +53,8 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         objective1.setCoords(1263 - ObjectiveCard.WIDTH, 30);
         objective2.setCoords(1263 - ObjectiveCard.WIDTH / 2, 30);
         objective3.setCoords(1263, 30);
-
+        
+        // Read Images
         try { TerrainCard.CARD_BACK = ImageIO.read(this.getClass().getResource("/Images/Card Back.png")); }
         catch (Exception e) { e.printStackTrace(); }
         cardBack.setDimensions(100, 150);
@@ -75,13 +80,24 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             frame = ImageIO.read(this.getClass().getResource("/Images/Dark Wood Background.png"));
             interior = ImageIO.read(this.getClass().getResource("/Images/Ocean Background.png"));
             strip = ImageIO.read(this.getClass().getResource("/Images/Light Wood Strip.png"));
+            leftArrow = ImageIO.read(this.getClass().getResource("/Images/Left Arrow Vector 1.png"));
             objectiveIcons = new BufferedImage[ObjectiveCard.names.length];
             for (int i = 0; i < ObjectiveCard.names.length; i++) {
             	objectiveIcons[i] = ImageIO.read(this.getClass().getResource("/Images/" + ObjectiveCard.names[i] + " Icon.png"));
             }
+            TerrainCard.cardImages = new BufferedImage[7];
+            for (int i = 0; i < 7; i++) {
+            	try {
+            		TerrainCard.cardImages[i] = ImageIO.read(this.getClass().getResource("/Images/" + TerrainCard.names[i] + " Card.png"));
+            	} catch (Exception e) { } 
+            }
         } catch (Exception e) { e.printStackTrace(); }
-
-        for (int i = 0; i < 4; i++) players[i] = new Player(i);
+        
+        // Init Deck
+        for (int i = 0; i < 5; i++)
+        	for (int j: new int[] {0, 1, 2, 3, 5})
+        		deck.add(new TerrainCard(j));
+        Collections.shuffle(deck);
 
         // Set location Tiles
         ArrayList<Integer> locationTilesList = new ArrayList<Integer> ();
@@ -103,6 +119,12 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             summary3 = ImageIO.read(this.getClass().getResource("/Images/Summary Location Tile - " + LocationTile.names[locationTilesList.get(2)] + ".png"));
             summary4 = ImageIO.read(this.getClass().getResource("/Images/Summary Location Tile - " + LocationTile.names[locationTilesList.get(3)] + ".png"));
         } catch(Exception e) { e.printStackTrace(); }
+        
+        // Initiating players
+        for (int i = 0; i < 4; i++) players[i] = new Player(i);
+        for (int i = 0; i < 4; i++) players[i].setTerrainCard(deck.remove(0));
+        
+        state = GameState.cardOrLocationTileSelection;
     }
 
     public void paint(Graphics g) {
@@ -138,7 +160,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         drawCenteredString(g, "Deck", f, 5, 135, 330);
         drawCenteredString(g, "Discard Pile", f, 5, 135, 530);
         // Deck and Discard images
-        if (true || !deck.isEmpty()) cardBack.display(g, 20, 340);
+        if (true || !deck.isEmpty()) { cardBack.setCoords(20, 340); cardBack.displayBack(g); }
 
         // Player Boxes Display
         for (int i = 0; i < 4; i++) players[i].display(g);
@@ -164,18 +186,29 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         // Continue Button Display
         continueButton.display(g);
         
-        g.drawImage(strip, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 50, Gameboard.LARGE_HEIGHT + 45, null);
+        g.drawImage(strip, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 310, GAMEBOARD_MARGIN_Y - 30, 50, Gameboard.LARGE_HEIGHT + 45, null);
         g.setColor(new Color(119, 47, 47));
-        g.drawRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 50, Gameboard.LARGE_HEIGHT + 45);
+        g.drawRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 310, GAMEBOARD_MARGIN_Y - 30, 50, Gameboard.LARGE_HEIGHT + 45);
         g.setColor(new Color(242, 235, 205, 200));
-        g.fillRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 50, Gameboard.LARGE_HEIGHT + 45);
+        g.fillRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 310, GAMEBOARD_MARGIN_Y - 30, 50, Gameboard.LARGE_HEIGHT + 45);
+        
+        if (!isObjectiveExpanded) {
+        	expandPanel = new Rectangle(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45);
+        	g.drawImage(strip, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45, null);
+        	g.setColor(new Color(119, 47, 47));
+        	g.drawRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45);
+            g.setColor(new Color(242, 235, 205, 200));
+            g.fillRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45);
+            height = 40;
+            g.drawImage(leftArrow, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, (GAMEBOARD_MARGIN_Y + Gameboard.LARGE_HEIGHT + 25) / 2 + height / 2, 40, height, null);
+        }
         
         int gap = (Gameboard.LARGE_HEIGHT + 45) / 3;
         g.setColor(Color.BLACK);
         ObjectiveCard [] objectives = new ObjectiveCard[] { objective1, objective2, objective3 };
         for (int i = 0; i < 3; i++) {
         	int y = getX(g, ObjectiveCard.names[objective1.getID()], f, GAMEBOARD_MARGIN_Y - 30 + gap * i, GAMEBOARD_MARGIN_Y - 30 + gap * (i + 1), 0) - 10;
-        	g.drawImage(objectiveIcons[objectives[i].getID()], GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 280, y, 30, 30, null);
+        	g.drawImage(objectiveIcons[objectives[i].getID()], GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 320, y, 30, 30, null);
         }
         
         AffineTransform at = new AffineTransform();
@@ -184,7 +217,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         
         for (int i = 0; i < 3; i++) {
         	int x = getX(g, ObjectiveCard.names[objective1.getID()], f, GAMEBOARD_MARGIN_Y - 30 + gap * i, GAMEBOARD_MARGIN_Y - 30 + gap * (i + 1), 0) + 30;
-        	g.drawString(objectives[i].toString(), x, -(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 285));
+        	g.drawString(objectives[i].toString(), x, -(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 325));
         }
     }
 
@@ -212,23 +245,37 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     @Override
     public void mousePressed(MouseEvent e) {
         int x = e.getX(), y = e.getY();
-
-        clickButton(x, y);
-        for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
-            for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
-                board.board[i][j].setHighlighted(false);
-            }
-        }
-        out:
-        for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
-            for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
-                if (board.board[i][j].contains(x, y)) {
-                    board.board[i][j].setHighlighted(true);
-                    break out;
-                }
-            }
-        }
-        repaint();
+        
+        switch (state) {
+        case cardOrLocationTileSelection:
+        	if (players[currentPlayerID].getTerrainCard().contains(x, y) && !players[currentPlayerID].getTerrainCard().isDarkened) {
+        		players[currentPlayerID].getTerrainCard().setHighlighted(true);
+        	} else players[currentPlayerID].getTerrainCard().setHighlighted(false);
+        	
+        	for (LocationTile tile: players[currentPlayerID].getlocationTiles()) {
+        		System.out.println(Arrays.toString(tile.getPolygon().xpoints));
+        		System.out.println(Arrays.toString(tile.getPolygon().ypoints));
+        		System.out.println();
+        		if (tile.contains(x, y) && !tile.isDarkened) tile.setHighlighted(true);
+        		else tile.setHighlighted(false);
+        	}
+        case settlementPlacement:
+	        clickButton(x, y);
+	        for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
+	            for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
+	                board.board[i][j].setHighlighted(false);
+	            }
+	        }
+	        out:
+	        for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
+	            for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
+	                if (board.board[i][j].contains(x, y)) {
+	                    board.board[i][j].setHighlighted(true);
+	                    break out;
+	                }
+	            }
+	        } break;
+        } repaint();
     }
     public void mouseClicked(MouseEvent e) {
 
@@ -243,14 +290,14 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 
     @Override
     public void mouseMoved(MouseEvent e) {
-//        int x = e.getX(), y = e.getY();
+        int x = e.getX(), y = e.getY();
 //        objective1.reset(); objective2.reset(); objective3.reset();
 //        if (objective1.contains(x, y)) objective1.enlarge();
 //        else if (objective2.contains(x, y)) objective2.enlarge();
 //        else if (objective3.contains(x, y)) objective3.enlarge();
 //
-//        continueButton.setHovering(continueButton.contains(x, y));
-//        repaint();
+        continueButton.setHovering(continueButton.contains(x, y));
+        repaint();
     }
 
     public void mouseDragged(MouseEvent e) { }
