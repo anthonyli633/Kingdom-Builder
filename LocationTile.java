@@ -18,8 +18,11 @@ public class LocationTile extends Hexagon {
 		this.id = id;
 	}
 	
+	public boolean contains(int x, int y) { return getPolygon().contains(x, y); }
 	public BufferedImage getImage() { return images[id]; }
-	public void display(Graphics g, int x, int y) {
-		g.drawImage(getImage(), x, y, (int) Math.round(SIDE_LENGTH * Math.sqrt(3)), (int) (2 * SIDE_LENGTH), null);
+	public void display(Graphics g) {
+		Point center = getCenterCoords();
+		g.drawImage(getImage(), (int) (center.x - Math.round(Hexagon.SIDE_LENGTH * Math.sqrt(3) / 2)), (int) Math.round(center.y - Hexagon.SIDE_LENGTH), (int) Math.round(SIDE_LENGTH * Math.sqrt(3)), (int) (2 * SIDE_LENGTH), null);
+		if (super.isHighlighted) g.drawPolygon(super.getPolygon());
 	}
 }
