@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.*;
 
 public class Hexagon {
 	static double SIDE_LENGTH; /* Actual side length of the hexagon */
@@ -16,6 +17,7 @@ public class Hexagon {
 	public LocationTile locationTile;
 	
 	/* Key:
+	 * File: 
 	 * 0 - Desert
 	 * 1 - Water
 	 * 2 - Forest
@@ -25,7 +27,18 @@ public class Hexagon {
 	 * 6 - Mountains
 	 * 7 - Location Tile
 	 * 8 - Castle
+	 * Actual: 
+	 * 0 - Canyon
+	 * 1 - Desert
+	 * 2 - Flowers
+	 * 3 - Forest
+	 * 4 - Mountains
+	 * 5 - Plains
+	 * 6 - Water
+	 * 7 - Location Tile
+	 * 8 - Castle
 	 */
+	static int [] conversion = new int[] {1, 6, 3, 5, 0, 2, 4, 7, 8};
 	
 	/* Initializes a hexagon with the given center coordinates */
 	public Hexagon(int row, int col, int type) {
@@ -76,6 +89,14 @@ public class Hexagon {
 			theta += Math.PI / 3;
 		} return coords;
 	}
+	public static Point [] getCoords(int x, int y) {
+		Point [] coords = new Point[6];
+		double theta = Math.PI / 6;
+		for (int i = 0; i < 6; i++) {
+			coords[i] = new Point((int) (SIDE_LENGTH * Math.cos(theta) + x), (int) (SIDE_LENGTH * Math.sin(theta) + y));
+			theta += Math.PI / 3;
+		} return coords;
+	}
 	public int getType() {
 		return type;
 	}
@@ -108,7 +129,8 @@ public class Hexagon {
 		} 
 		if (locationTile != null) {
 			int topLeftX = centerX - (int) Math.round(SIDE_LENGTH * Math.sqrt(3) / 2), topLeftY = (int) (centerY - SIDE_LENGTH);
-			locationTile.display(g, topLeftX, topLeftY);
+			locationTile.setCoords(topLeftX, topLeftY);
+			locationTile.display(g);
 		}
 		if (type == 8) {
 			int topLeftX = centerX - (int) Math.round(SIDE_LENGTH * Math.sqrt(3) / 2), topLeftY = (int) (centerY - SIDE_LENGTH);
