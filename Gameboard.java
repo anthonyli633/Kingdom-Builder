@@ -19,8 +19,12 @@ public class Gameboard {
 
     private Polygon outline;
 
-    private static int [] dx = new int[6];
-    private static int [] dy = new int[6];
+    public static int [] dx = new int[] {0, -1, -1, 0, 1, 1};
+    public static int [] dy = new int[] {1, 0, -1, -1, -1, 0};
+    
+    public static boolean isValid(int r, int c) {
+    	return r >= 0 && c >= 0 && r < LARGE_SIZE && c < LARGE_SIZE;
+    }
 
     public ArrayList<int []> locationTileCoords = new ArrayList<> ();
 
@@ -111,6 +115,11 @@ public class Gameboard {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 board[i][j].display(g);
+            }
+        }
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (board[i][j].isHighlighted) board[i][j].display(g);
             }
         }
     }
