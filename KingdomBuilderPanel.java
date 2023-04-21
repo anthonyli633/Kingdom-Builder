@@ -35,7 +35,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 
     private Button continueButton, endTurnButton;
 
-    GameState state;
+    static GameState state, prevState;
 
     public KingdomBuilderPanel() {
         addMouseListener(this);
@@ -73,7 +73,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             continueButton = new Button(img1, img2, img3);
             continueButton.setWidth(140); continueButton.setHeight(50);
             continueButton.setCenterCoords(1600, 965);
-            continueButton.setEnabled(true);
+            continueButton.setEnabled(false);
         } catch (Exception e) { e.printStackTrace(); }
         try {
             background = ImageIO.read(this.getClass().getResource("/Images/Light Wood Background.jpg"));
@@ -95,10 +95,6 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         try {
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(System.getProperty("user.dir") + "/src/Font/Kingdom Builder Font.ttf")));
-            String[] fontnames = ge.getAvailableFontFamilyNames();
-            System.out.println("\nFonts available on this platform: ");
-            for (int i = 0; i < fontnames.length; i++)
-                System.out.println(fontnames[i]);
         } catch (IOException|FontFormatException e) { e.printStackTrace(); }
 
         // Init Deck
@@ -246,29 +242,35 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 
     public void clickButton(int x, int y) {
         if (continueButton.isClicked(x, y)) {
-            continueButton.setEnabled(false);
-            continueButton.setHovering(false);
+            continueButton.click();
         }
         repaint();
     }
-
+    
     @Override
     public void mousePressed(MouseEvent e) {
         int x = e.getX(), y = e.getY();
 
         switch (state) {
             case cardOrLocationTileSelection:
+            	if (continueButton.isEnabled()) clickButton(x, y);
+            	if (continueButton.isBeingClicked()) { 
+            		if (players[currentPlayerID].getTerrainCard().isHighlighted) 
+            			darkenHexagons(players[currentPlayerID].getTerrainCard().getID());
+            		break; 
+            	}
+            	boolean hasOneSelected = false;
                 if (players[currentPlayerID].getTerrainCard().contains(x, y) && !players[currentPlayerID].getTerrainCard().isDarkened) {
                     players[currentPlayerID].getTerrainCard().setHighlighted(true);
+                    hasOneSelected = true;
                 } else players[currentPlayerID].getTerrainCard().setHighlighted(false);
 
                 for (LocationTile tile: players[currentPlayerID].getlocationTiles()) {
-                    System.out.println(Arrays.toString(tile.getPolygon().xpoints));
-                    System.out.println(Arrays.toString(tile.getPolygon().ypoints));
-                    System.out.println();
-                    if (tile.contains(x, y) && !tile.isDarkened) tile.setHighlighted(true);
+                    if (tile.contains(x, y) && !tile.isDarkened) { tile.setHighlighted(true); hasOneSelected = true; }
                     else tile.setHighlighted(false);
                 }
+                continueButton.setEnabled(hasOneSelected);
+                break;
             case settlementPlacement:
                 clickButton(x, y);
                 for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
@@ -280,19 +282,51 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                 for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
                     for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
                         if (board.board[i][j].contains(x, y)) {
-                            board.board[i][j].setHighlighted(true);
+                            if (!board.board[i][j].isDarkened) board.board[i][j].setHighlighted(true);
                             break out;
                         }
                     }
                 } break;
         } repaint();
     }
+    public void darkenHexagons(int type) {
+    	ArrayList<int []> positions = new ArrayList<> ();
+    	for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
+    		for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
+    			boolean hasAdj = false;
+    			for (int k = 0; k < 6; k++) {
+    				int r = i + Gameboard.dx[k], c = j + Gameboard.dy[k];
+    				if (Gameboard.isValid(r, c) && board.board[r][c].getSettlement() != null) hasAdj = true;
+    			} if (hasAdj && board.board[i][j].getSettlement() == null && board.board[i][j].getType() == type) positions.add(new int[] {i, j});
+    		}
+    	}
+    	
+    	if (positions.isEmpty()) {
+    		for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
+        		for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
+        			board.board[i][j].setDarkened(board.board[i][j].getType() != type);
+        		}
+    		}
+    	} else {
+    		for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
+        		for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
+        			board.board[i][j].setDarkened(true);
+        		}
+    		}
+    		for (int [] arr: positions) {
+    			board.board[arr[0]][arr[1]].setDarkened(false);
+    		}
+    	}
+    }
+    
     public void mouseClicked(MouseEvent e) {
 
     }
     public void mouseReleased(MouseEvent e) {
-        if (!continueButton.isEnabled()) {
-            continueButton.setEnabled(true);
+        if (continueButton.isBeingClicked()) {
+        	state = state.nextState(); 
+            continueButton.unclick();
+            continueButton.setEnabled(false);
         }
     }
     public void mouseEntered(MouseEvent e) { }
