@@ -124,20 +124,18 @@ public class Hexagon {
 
     /* Displays the hexagon (highlighted portion) */
     public void display(Graphics g) {
-        if (isDarkened) {
-            g.setColor(new Color(0, 0, 0, 100));
-            g.fillPolygon(getPolygon());
-        }
         if (locationTile != null) {
-            int topLeftX = centerX - (int) Math.round(SIDE_LENGTH * Math.sqrt(3) / 2), topLeftY = (int) (centerY - SIDE_LENGTH);
-            locationTile.setCoords(topLeftX, topLeftY);
             locationTile.display(g);
         }
         if (type == 8) {
             int topLeftX = centerX - (int) Math.round(SIDE_LENGTH * Math.sqrt(3) / 2), topLeftY = (int) (centerY - SIDE_LENGTH);
             g.drawImage(castle, topLeftX, topLeftY - 1, (int) Math.round(SIDE_LENGTH * Math.sqrt(3)), (int) (2 * SIDE_LENGTH), null);
         }
-
+        
+        if (isDarkened) {
+            g.setColor(new Color(0, 0, 0, 100));
+            g.fillPolygon(getPolygon());
+        }
         if (isHighlighted) {
             g.setColor(Color.YELLOW);
             g.drawPolygon(getPolygon());
