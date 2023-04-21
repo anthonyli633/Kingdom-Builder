@@ -10,6 +10,7 @@ public class Button {
 	private BufferedImage img1, img2, img3;
 	private boolean enabled, hovering;
 	private int x, y, width, height;
+	private boolean isBeingClicked;
 	
 	public Button(BufferedImage img1, BufferedImage img2, BufferedImage img3) {
 		this.img1 = img1;
@@ -36,6 +37,18 @@ public class Button {
 	}
 	public int getX() { return x; }
 	public int getY() { return y; }
+	
+	public void click() {
+		setEnabled(false);
+		isBeingClicked = true;
+		setHovering(false);
+	}
+	public void unclick() {
+		setEnabled(true);
+		isBeingClicked = false;
+		setHovering(false);
+	}
+	public boolean isBeingClicked() { return isBeingClicked; }
 
 	public boolean isClicked(int x1, int y1) {
 		return enabled && contains(x1, y1);
