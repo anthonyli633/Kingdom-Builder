@@ -121,6 +121,9 @@ public class Hexagon {
     public Settlement getSettlement() {
         return settlement;
     }
+    public void setSettlement(Settlement settlement) {
+        this.settlement = settlement;
+    }
 
     /* Displays the hexagon (highlighted portion) */
     public void display(Graphics g) {
@@ -131,7 +134,7 @@ public class Hexagon {
             int topLeftX = centerX - (int) Math.round(SIDE_LENGTH * Math.sqrt(3) / 2), topLeftY = (int) (centerY - SIDE_LENGTH);
             g.drawImage(castle, topLeftX, topLeftY - 1, (int) Math.round(SIDE_LENGTH * Math.sqrt(3)), (int) (2 * SIDE_LENGTH), null);
         }
-        
+
         if (isDarkened) {
             g.setColor(new Color(0, 0, 0, 100));
             g.fillPolygon(getPolygon());
@@ -140,5 +143,6 @@ public class Hexagon {
             g.setColor(Color.YELLOW);
             g.drawPolygon(getPolygon());
         }
+        if (settlement != null) settlement.display(g);
     }
 }
