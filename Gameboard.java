@@ -21,9 +21,9 @@ public class Gameboard {
 
     public static int [] dx = new int[] {0, -1, -1, 0, 1, 1};
     public static int [] dy = new int[] {1, 0, -1, -1, -1, 0};
-    
+
     public static boolean isValid(int r, int c) {
-    	return r >= 0 && c >= 0 && r < LARGE_SIZE && c < LARGE_SIZE;
+        return r >= 0 && c >= 0 && r < LARGE_SIZE && c < LARGE_SIZE;
     }
 
     public ArrayList<int []> locationTileCoords = new ArrayList<> ();
