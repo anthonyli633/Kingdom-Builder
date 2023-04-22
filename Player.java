@@ -28,7 +28,7 @@ public class Player {
 
     public int getScore() { return score; }
     public int getID() { return id; }
-    public int getMandatorySettlementsLeft() { return mandatorySettlementsLeft; }
+    public int getMandatorySettlementsLeft() { return mandatorySettlementsLeft + 3; }
     public int getTurnSettlementsLeft() { return turnSettlementsLeft; }
     public int getTotalSettlementsLeft() { return totalSettlementsLeft; }
     public TerrainCard getTerrainCard() { return terrainCard; }
