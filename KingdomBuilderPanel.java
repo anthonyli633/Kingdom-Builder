@@ -122,10 +122,10 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             }
         }
         try {
-            summary1 = ImageIO.read(this.getClass().getResource("/Images/Summary Location Tile - " + LocationTile.names[locationTilesList.get(0)] + ".png"));
-            summary2 = ImageIO.read(this.getClass().getResource("/Images/Summary Location Tile - " + LocationTile.names[locationTilesList.get(1)] + ".png"));
-            summary3 = ImageIO.read(this.getClass().getResource("/Images/Summary Location Tile - " + LocationTile.names[locationTilesList.get(2)] + ".png"));
-            summary4 = ImageIO.read(this.getClass().getResource("/Images/Summary Location Tile - " + LocationTile.names[locationTilesList.get(3)] + ".png"));
+            summary1 = ImageIO.read(this.getClass().getResource("/Images/Summary Location - " + LocationTile.names[locationTilesList.get(0)] + ".png"));
+            summary2 = ImageIO.read(this.getClass().getResource("/Images/Summary Location - " + LocationTile.names[locationTilesList.get(1)] + ".png"));
+            summary3 = ImageIO.read(this.getClass().getResource("/Images/Summary Location - " + LocationTile.names[locationTilesList.get(2)] + ".png"));
+            summary4 = ImageIO.read(this.getClass().getResource("/Images/Summary Location - " + LocationTile.names[locationTilesList.get(3)] + ".png"));
         } catch(Exception e) { e.printStackTrace(); }
 
         // Initiating players
