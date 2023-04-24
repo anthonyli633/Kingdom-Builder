@@ -19,9 +19,11 @@ public class Gameboard {
 
     private Polygon outline;
 
-    public static int [] dx = new int[] {0, -1, -1, 0, 1, 1};
-    public static int [] dy = new int[] {1, 0, -1, -1, -1, 0};
-
+    public static int [] dxEvens = new int[] {0, -1, -1, 0, 1, 1};
+    public static int [] dyEvens = new int[] {1, 0, -1, -1, -1, 0};
+    public static int [] dxOdds = new int[] {0, -1, -1, 0, 1, 1};
+    public static int [] dyOdds = new int[] {1, 1, 0, -1, 0, 1};
+    
     public static boolean isValid(int r, int c) {
         return r >= 0 && c >= 0 && r < LARGE_SIZE && c < LARGE_SIZE;
     }
