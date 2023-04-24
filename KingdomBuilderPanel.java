@@ -262,9 +262,29 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             case cardOrLocationTileSelection:
                 if (continueButton.isEnabled()) clickButton(x, y);
                 if (continueButton.isBeingClicked()) {
-                    if (players[currentPlayerID].getTerrainCard().isHighlighted)
-                        darkenHexagons(players[currentPlayerID].getTerrainCard().getID());
-                    break;
+                    if (players[currentPlayerID].getTerrainCard().isHighlighted) darkenHexagons(players[currentPlayerID].getTerrainCard().getID());
+                    for (LocationTile tile: players[currentPlayerID].getlocationTiles()) {
+                    	if (tile.isHighlighted) {
+                    		switch (tile.getName()) {
+                    		case "Oracle":
+                    			darkenHexagons(players[currentPlayerID].getTerrainCard().getID());
+                    			break;
+                    		case "Farm":
+                    			darkenHexagons(5);
+                    			break;
+                    		case "Oasis":
+                    			darkenHexagons(1);
+                    			break;
+                    		case "Tower":
+                    			darkenNonTowerHexagons();
+                    			break;
+                    		case "Tavern":
+                    			darkenNonTavernHexagons();
+                    			break;
+                    		}
+                    	}
+                    }
+                    return;
                 }
                 boolean hasOneSelected = false;
                 if (players[currentPlayerID].getTerrainCard().contains(x, y) && !players[currentPlayerID].getTerrainCard().isDarkened) {
@@ -279,19 +299,16 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                 continueButton.setEnabled(hasOneSelected);
                 break;
             case settlementPlacement:
-                if (continueButton.isEnabled()) clickButton(x, y);
                 for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
                     for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
                         board.board[i][j].setHighlighted(false);
                     }
                 }
+                if (continueButton.isEnabled()) { 
+                	clickButton(x, y); 
+                	if (continueButton.isBeingClicked()) break;
+                }
                 hasOneSelected = false;
-                for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
-                    for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
-                        System.out.print(board.board[i][j].getSettlement() + " ");
-                    }
-                    System.out.println();
-                } System.out.println();
                 out:
                 for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
                     for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
@@ -304,6 +321,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                         }
                     }
                 }
+                if (!hasOneSelected) tempSettlement = null;
                 continueButton.setEnabled(hasOneSelected);
                 break;
         } repaint();
@@ -321,14 +339,14 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
             for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
                 boolean hasAdj = false;
+                int [] dx = i % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
+                int [] dy = i % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
                 for (int k = 0; k < 6; k++) {
-                    int r = i + Gameboard.dx[k], c = j + Gameboard.dy[k];
+                    int r = i + dx[k], c = j + dy[k];
                     if (Gameboard.isValid(r, c) && board.board[r][c].getSettlement() != null && board.board[r][c].getSettlement().getOwnerID() == currentPlayerID) {
-                        System.out.println(i + " " + j + ": " + r + " " + c + " " + board.board[r][c].getSettlement());
                         hasAdj = true;
                     }
                 }
-                System.out.println(i + " " + j + ": " + hasAdj);
                 if (hasAdj && board.board[i][j].getSettlement() == null && board.board[i][j].getType() == type) positions.add(new int[] {i, j});
             }
         }
@@ -346,9 +364,83 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                 }
             }
             for (int [] arr: positions) {
-                System.out.println(Arrays.toString(arr));
                 board.board[arr[0]][arr[1]].setDarkened(false);
             }
+        }
+    }
+    public void darkenNonTowerHexagons() {
+    	ArrayList<int []> positions = new ArrayList<> ();
+        for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
+            for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
+                boolean hasAdj = false;
+                int [] dx = i % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
+                int [] dy = i % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
+                for (int k = 0; k < 6; k++) {
+                    int r = i + dx[k], c = j + dy[k];
+                    if (Gameboard.isValid(r, c) && board.board[r][c].getSettlement() != null && board.board[r][c].getSettlement().getOwnerID() == currentPlayerID) {
+                        hasAdj = true;
+                    }
+                }
+                boolean isOnBorder = i == 0 || j == 0 || i == Gameboard.LARGE_SIZE - 1 || j == Gameboard.LARGE_SIZE - 1;
+                if (hasAdj && board.board[i][j].getSettlement() == null && isOnBorder) positions.add(new int[] {i, j});
+            }
+        }
+
+        if (positions.isEmpty()) {
+            for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
+                for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
+                	boolean isOnBorder = i == 0 || j == 0 || i == Gameboard.LARGE_SIZE - 1 || j == Gameboard.LARGE_SIZE - 1;
+                    board.board[i][j].setDarkened(!isOnBorder);
+                }
+            }
+        } else {
+            for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
+                for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
+                    board.board[i][j].setDarkened(true);
+                }
+            }
+            for (int [] arr: positions) {
+                board.board[arr[0]][arr[1]].setDarkened(false);
+            }
+        }
+    }
+    public void darkenNonTavernHexagons() {
+    	ArrayList<int []> positions = new ArrayList<> ();
+        for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
+            for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
+                boolean any = false;
+                for (int k = 0; k < 6; k++) {
+                	int [] dx = i % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
+                    int [] dy = i % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
+                    int r1 = i + dx[k], c1 = j + dy[k];
+                    dx = r1 % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
+                    dy = r1 % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
+                    int r2 = r1 + dx[k], c2 = c1 + dy[k];
+                    dx = r2 % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
+                    dy = r2 % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
+                    int r3 = r2 + dx[k], c3 = c2 + dy[k];
+                    int [] rows = { r1, r2, r3 }, cols = { c1, c2, c3 };
+                    boolean all = false;
+                    if (Gameboard.isValid(r3, c3)) {
+                    	all = true;
+                    	for (int x = 0; x < 3; x++) {
+                    		int r = rows[x], c = cols[x];
+                    		if (!(board.board[r][c].getSettlement() != null && board.board[r][c].getSettlement().getOwnerID() == currentPlayerID))
+                    			all = false;
+                    	}
+                    } if (all) any = true;
+                }
+                if (any && board.board[i][j].getSettlement() == null) positions.add(new int[] {i, j});
+            }
+        }
+
+        for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
+	        for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
+	                board.board[i][j].setDarkened(true);
+	        }
+	    }
+        for (int [] arr: positions) {
+            board.board[arr[0]][arr[1]].setDarkened(false);
         }
     }
 
