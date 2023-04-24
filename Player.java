@@ -1,138 +1,106 @@
 import java.util.*;
+
 import javax.imageio.ImageIO;
+
 import java.io.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.awt.image.*;
 
-public class Gameboard {
-    static String [] names = new String [] {"Board 1", "Board 2", "Board 3", "Board 4"};
-    static int SMALL_WIDTH = 465, SMALL_HEIGHT = 396;
-    static int SMALL_SIZE = 10;
-    static int LARGE_WIDTH = SMALL_WIDTH * 2, LARGE_HEIGHT = SMALL_HEIGHT * 2;
-    static int LARGE_SIZE = SMALL_SIZE * 2;
+public class Player {
+    private int score;
+    private int mandatorySettlementsLeft, turnSettlementsLeft, totalSettlementsLeft;
+    private int id;
+    private TerrainCard terrainCard;
+    private ArrayList<LocationTile> locationTiles = new ArrayList<> ();
+    private ArrayList<int []> settlementLocations = new ArrayList<> ();
+    private boolean firstPlayer;
+    
+    static BufferedImage playerBox;
 
-    public BufferedImage [] imgs = new BufferedImage[4];
-    private int width, height; /* width and height in pixels */
-    private int SIZE; /* # of hexagons in a dimension */
-    private int topX, topY; /* the coordinates of the top-left corner */
-    public Hexagon [][] board; /* a 2-D array representing the board */
+    public Player(int id) {
+        totalSettlementsLeft = 40; setID(id);
+        resetSettlementCounts();
+        
+        try {
+        	playerBox = ImageIO.read(this.getClass().getResource("/Images/Light Wood Box.png"));
+        } catch (Exception e) { e.printStackTrace(); }
 
-    private Polygon outline;
-
-    public static int [] dx = new int[] {0, -1, -1, 0, 1, 1};
-    public static int [] dy = new int[] {1, 0, -1, -1, -1, 0};
-
-    public static boolean isValid(int r, int c) {
-        return r >= 0 && c >= 0 && r < LARGE_SIZE && c < LARGE_SIZE;
+        int row = id / 2, col = id % 2;
+        int width = 225, height = Gameboard.SMALL_HEIGHT + 20;
+        int x = KingdomBuilderPanel.GAMEBOARD_MARGIN_X - width + col * (width + Gameboard.LARGE_WIDTH + 35), y = KingdomBuilderPanel.GAMEBOARD_MARGIN_Y - 28 + row * height;
+        for (int i = 0; i < 6; i++) {
+            int row1 = i / 4, col1 = i % 4;
+            int x1 = x + col1 * 50 + 15;
+            int y1 = 170 + row * height + TerrainCard.HEIGHT + row1 * 53 + 10;
+            int [] vals = new int[] {1, 3, 4, 6, 7};
+            locationTiles.add(new LocationTile(0, 0, vals[(int) (Math.random() * vals.length)]));
+            locationTiles.get(i).setCoords((int) (x1 + Math.round(Hexagon.SIDE_LENGTH * Math.sqrt(3) / 2)), (int) Math.round(y1 + Hexagon.SIDE_LENGTH));
+        }
     }
 
-    public ArrayList<int []> locationTileCoords = new ArrayList<> ();
-
-    /* Initializes a small gameboard */
-    public Gameboard(File file) throws IOException {
-        width = SMALL_WIDTH; height = SMALL_HEIGHT;
-        SIZE = SMALL_SIZE;
-
-        Hexagon.SIDE_LENGTH = (double) height * 2 / 31;
-        board = new Hexagon[SIZE][SIZE];
-        Scanner sc = new Scanner(file);
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                Point p = getCoords(i, j);
-                board[i][j] = new Hexagon(i, j, Hexagon.conversion[sc.nextInt()]);
-                if (board[i][j].getType() == 7) {
-                    locationTileCoords.add(new int[] {i, j});
-                }
-            }
-        } sc.close();
+    public int getScore() { return score; }
+    public int getID() { return id; }
+    public int getMandatorySettlementsLeft() { return mandatorySettlementsLeft; }
+    public int getTurnSettlementsLeft() { return turnSettlementsLeft; }
+    public int getTotalSettlementsLeft() { return totalSettlementsLeft; }
+    public TerrainCard getTerrainCard() { return terrainCard; }
+    public ArrayList<LocationTile> getlocationTiles() { return locationTiles; }
+    public ArrayList<int []> getSettlementLocations() { return settlementLocations; }
+    public boolean isFirstPlayer() { return firstPlayer; }
+    
+    public void resetSettlementCounts() {
+    	mandatorySettlementsLeft = Math.max(3, totalSettlementsLeft);
+    	turnSettlementsLeft = mandatorySettlementsLeft;
+    	for (LocationTile tile: getlocationTiles()) {
+    		if (!tile.isDarkened) turnSettlementsLeft++;
+    	} turnSettlementsLeft = Math.max(turnSettlementsLeft, totalSettlementsLeft);
+    }
+    public void useTerrainCard() {
+    	turnSettlementsLeft --;
+    	totalSettlementsLeft --;
+    	if (--mandatorySettlementsLeft == 0) terrainCard.isDarkened = true;
+    }
+    public void useLocationTile(LocationTile t) {
+    	turnSettlementsLeft --;
+    	totalSettlementsLeft --;
+    	t.setDarkened(true);
     }
 
-    /* Initializes a large gameboard */
-    public Gameboard (Gameboard g1, Gameboard g2, Gameboard g3, Gameboard g4) {
-        width = LARGE_WIDTH; height = LARGE_HEIGHT;
-        SIZE = LARGE_SIZE;
+    public void setTerrainCard(TerrainCard terrainCard) { this.terrainCard = terrainCard; }
+    public void setFirstPLayer(boolean firstPlayer) { this.firstPlayer = firstPlayer; }
+    public void addScore(int amount) { score += amount; }
+    public void setScore(int score) { this.score = score; }
+    public void setID(int id) { this.id = id; }
 
-        for (int i = 0; i < 4; i++) {
-            try { imgs[i] = ImageIO.read(this.getClass().getResource("/Images/" + names[i] + ".png")); }
-            catch (IOException e) { e.printStackTrace(); }
-        }
-
-        board = new Hexagon[SIZE][SIZE];
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                if (i < SMALL_SIZE && j < SMALL_SIZE) board[i][j] = g1.board[i][j];
-                if (i < SMALL_SIZE && j >= SMALL_SIZE) board[i][j] = g2.board[i][j - SMALL_SIZE];
-                if (i >= SMALL_SIZE && j < SMALL_SIZE) board[i][j] = g3.board[i - SMALL_SIZE][j];
-                if (i >= SMALL_SIZE && j >= SMALL_SIZE) board[i][j] = g4.board[i - SMALL_SIZE][j - SMALL_SIZE];
-            }
-        }
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                board[i][j] = new Hexagon(i, j, board[i][j].getType());
-            }
-        }
-
-        int MARGIN = 10;
-        int [] xs = new int[160], ys = new int[160];
-        for (int i = 0; i < 20; i++) {
-            xs[2 * i] = board[i][0].getCoords()[3].x; ys[2 * i] = board[i][0].getCoords()[3].y;
-            xs[2 * i + 1] = board[i][0].getCoords()[2].x; ys[2 * i + 1] = board[i][0].getCoords()[2].y;
-        }
-        for (int i = 20; i < 40; i++) {
-            xs[2 * i] = board[19][i % 20].getCoords()[1].x; ys[2 * i] = board[19][i % 20].getCoords()[1].y;
-            xs[2 * i + 1] = board[19][i % 20].getCoords()[0].x; ys[2 * i + 1] = board[19][i % 20].getCoords()[0].y;
-        }
-        for (int i = 40; i < 60; i++) {
-            xs[2 * i] = board[19 - i % 20][19].getCoords()[0].x; ys[2 * i] = board[19 - i % 20][19].getCoords()[0].y;
-            xs[2 * i + 1] = board[19 - i % 20][19].getCoords()[5].x; ys[2 * i + 1] = board[19 - i % 20][19].getCoords()[5].y;
-        }
-        for (int i = 60; i < 80; i++) {
-            xs[2 * i] = board[0][19 - i % 20].getCoords()[4].x; ys[2 * i] = board[0][19 - i % 20].getCoords()[4].y;
-            xs[2 * i + 1] = board[0][19 - i % 20].getCoords()[3].x; ys[2 * i + 1] = board[0][19 - i % 20].getCoords()[3].y;
-        }
-
-        outline = new Polygon();
-        for (int i = 0; i < 160; i++) outline.addPoint(xs[i], ys[i]);
-
-        locationTileCoords.addAll(g1.locationTileCoords);
-        locationTileCoords.addAll(g2.locationTileCoords);
-        locationTileCoords.addAll(g3.locationTileCoords);
-        locationTileCoords.addAll(g4.locationTileCoords);
-    }
-
-    public void display(Graphics g, int x, int y) {
+    public void display(Graphics g) {
+        // Player Box
+    	int row = id / 2, col = id % 2;
+        int width = 225, height = Gameboard.SMALL_HEIGHT + 20;
+        int x = KingdomBuilderPanel.GAMEBOARD_MARGIN_X - width + col * (width + Gameboard.LARGE_WIDTH + 35), y = KingdomBuilderPanel.GAMEBOARD_MARGIN_Y - 28 + row * height;
+    	g.drawImage(playerBox, x, y, width, height, null);
+        g.setColor(new Color(242, 235, 205, 200));
+        g.fillRect(x, y, width, height);
+        Color c = (id == KingdomBuilderPanel.currentPlayerID ? Color.MAGENTA : new Color(119, 47, 47));
+        g.setColor(c);
+        g.drawRect(x, y, width, height);
         g.setColor(Color.BLACK);
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setStroke(new BasicStroke(15));
-        g.drawPolygon(outline);
-        g2.setStroke(new BasicStroke(5));
 
-        for (int i = 0; i < 4; i++) {
-            int r = i / 2, c = i % 2;
-            g.drawImage(imgs[i], x + c * (SMALL_WIDTH - (int) Math.round(Hexagon.SIDE_LENGTH * Math.sqrt(3) / 2)), y + (int) Math.round(r * (SMALL_HEIGHT - Hexagon.SIDE_LENGTH / 2)), SMALL_WIDTH, SMALL_HEIGHT, null);
+        for (int i = 0; i < locationTiles.size(); i++) {
+            locationTiles.get(i).display(g);
         }
 
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                board[i][j].display(g);
-            }
-        }
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                if (board[i][j].isHighlighted) board[i][j].display(g);
-            }
-        }
+        Font f = new Font(Font.SANS_SERIF, Font.BOLD, 20);
+        // Settlements Left
+        KingdomBuilderPanel.drawCenteredString(g, "Settlements Left: " + totalSettlementsLeft, f, x, x + width, y + height - 20);
+
+        // Player text
+        KingdomBuilderPanel.drawCenteredString(g, toString(), f, x, x + width, y + 40);
+        // Card
+        x = x + width / 2 - TerrainCard.WIDTH * 3 / 5; y += 50;
+        terrainCard.setCoords(x, y);
+        terrainCard.setDimensions(TerrainCard.WIDTH * 6 / 5, TerrainCard.HEIGHT * 6 / 5);
+        if (id == KingdomBuilderPanel.currentPlayerID) terrainCard.displayFront(g);
+        else terrainCard.displayBack(g);
     }
-
-    /* Returns the coordiantes of a hexagon at a specific row and col */
-    public static Point getCoords(int row, int col) {
-        int x = KingdomBuilderPanel.GAMEBOARD_MARGIN_X + 30, y = KingdomBuilderPanel.GAMEBOARD_MARGIN_Y;
-        if (row % 2 == 0) {
-            x += (int) Math.round(Hexagon.SIDE_LENGTH * (2 * col + 1) * Math.sqrt(3) / 2);
-            y += Hexagon.SIDE_LENGTH * (3 * row / 2 + 1);
-        } else {
-            x += (int) Math.round(Hexagon.SIDE_LENGTH * (col + 1) * Math.sqrt(3));
-            y += Hexagon.SIDE_LENGTH * (6 * (row / 2 + 1) - 1) / 2;
-        } return new Point(x, y);
-    }
+    public String toString() { return "Player " + (id + 1) + ": " + score + " Gold"; }
 }
