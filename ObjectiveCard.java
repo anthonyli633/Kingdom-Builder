@@ -43,13 +43,6 @@ public class ObjectiveCard {
 		catch (IOException e) { e.printStackTrace(); }
 		g.drawImage(img, topLeftX, topLeftY, width, height, null);
 	}
-	
-	public void expandImage(Graphics g){
-		BufferedImage img = null;
-		try { img = ImageIO.read(this.getClass().getResource("/Images/" + names[id] + "Objective.png")); }
-		catch (IOException e) { e.printStackTrace(); }
-		g.drawImage(img, topLeftX+100, topLeftY, width*10, height*10, null);
-	
 	public void score() {
 		
 	}
