@@ -13,7 +13,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     static int GAMEBOARD_MARGIN_X = 1720 / 2 - Gameboard.SMALL_WIDTH - 35 / 2, GAMEBOARD_MARGIN_Y = HEIGHT / 2 - Gameboard.SMALL_HEIGHT;
     static final int BORDER_WIDTH = 5;
     static final int RHS_START_X = 1150;
-    
+
     static Color SHADE = new Color(0, 0, 0, 100);
 
     private Gameboard board;
@@ -157,9 +157,13 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         board.display(g, GAMEBOARD_MARGIN_X + 30, GAMEBOARD_MARGIN_Y);
 
         // Deck and Discard Pile Panel Rectangle
-        g.setColor(Color.BLACK);
+        g.drawImage(strip, 5, 300, 130, 400, null);
+        g.setColor(new Color(242, 235, 205, 200));
+        g.fillRect(5, 300, 130, 400);
+        g.setColor(new Color(119, 47, 47));
         g.drawRect(5, 300, 130, 200);
         g.drawRect(5, 500, 130, 200);
+        g.setColor(Color.BLACK);
         // Deck and Discard text
         f = new Font("Thunder Kingdom", Font.BOLD, 16);
         drawCenteredString(g, "Deck", f, 5, 135, 330);
@@ -240,14 +244,14 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         int x = (((x2 - x1) - fm.stringWidth(s)) / 2) + x1;
         return x;
     }
-    
+
     private boolean advanceState;
     private Settlement tempSettlement;
     private int selectedRow, selectedCol;
     @Override
     public void mousePressed(MouseEvent e) {
         int x = e.getX(), y = e.getY();
-        
+
         System.out.println(state);
         switch (state) {
             case cardOrLocationTileSelection:
@@ -261,40 +265,40 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                     if (tile.contains(x, y) && !tile.isDarkened) { tile.setHighlighted(true); hasOneSelected = true; }
                     else tile.setHighlighted(false);
                 }
-                if (hasOneSelected) advanceState = true; 
+                if (hasOneSelected) advanceState = true;
                 if (advanceState) {
-                	for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
-	                    for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
-	                        board.board[i][j].setHighlighted(false);
-	                    }
-	                }
+                    for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
+                        for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
+                            board.board[i][j].setHighlighted(false);
+                        }
+                    }
                     if (players[currentPlayerID].getTerrainCard().isHighlighted) darkenHexagons(players[currentPlayerID].getTerrainCard().getID());
                     for (LocationTile tile: players[currentPlayerID].getlocationTiles()) {
-                    	if (tile.isHighlighted) {
-                    		switch (tile.getName()) {
-                    		case "Oracle":
-                    			darkenHexagons(players[currentPlayerID].getTerrainCard().getID());
-                    			break;
-                    		case "Farm":
-                    			darkenHexagons(5);
-                    			break;
-                    		case "Oasis":
-                    			darkenHexagons(1);
-                    			break;
-                    		case "Tower":
-                    			darkenNonTowerHexagons();
-                    			break;
-                    		case "Tavern":
-                    			darkenNonTavernHexagons();
-                    			break;
-                    		}
-                    	}
+                        if (tile.isHighlighted) {
+                            switch (tile.getName()) {
+                                case "Oracle":
+                                    darkenHexagons(players[currentPlayerID].getTerrainCard().getID());
+                                    break;
+                                case "Farm":
+                                    darkenHexagons(5);
+                                    break;
+                                case "Oasis":
+                                    darkenHexagons(1);
+                                    break;
+                                case "Tower":
+                                    darkenNonTowerHexagons();
+                                    break;
+                                case "Tavern":
+                                    darkenNonTavernHexagons();
+                                    break;
+                            }
+                        }
                     }
                     return;
                 }
                 break;
             case cardOrLocationTileSelectionOrsettlementPlacement:
-            	hasOneSelected = false;
+                hasOneSelected = false;
                 if (players[currentPlayerID].getTerrainCard().contains(x, y) && !players[currentPlayerID].getTerrainCard().isDarkened)
                     hasOneSelected = true;
                 for (LocationTile tile: players[currentPlayerID].getlocationTiles()) {
@@ -314,7 +318,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                     }
                 } if (hasOneSelected) { state = state.nextState(); mousePressed(e); break; }
                 System.out.println(hasOneSelected);
-            	break;
+                break;
             case settlementPlacement:
                 for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
                     for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
@@ -381,7 +385,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         }
     }
     public void darkenNonTowerHexagons() {
-    	ArrayList<int []> positions = new ArrayList<> ();
+        ArrayList<int []> positions = new ArrayList<> ();
         for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
             for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
                 boolean hasAdj = false;
@@ -401,7 +405,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         if (positions.isEmpty()) {
             for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
                 for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
-                	boolean isOnBorder = i == 0 || j == 0 || i == Gameboard.LARGE_SIZE - 1 || j == Gameboard.LARGE_SIZE - 1;
+                    boolean isOnBorder = i == 0 || j == 0 || i == Gameboard.LARGE_SIZE - 1 || j == Gameboard.LARGE_SIZE - 1;
                     board.board[i][j].setDarkened(!isOnBorder || board.board[i][j].getSettlement() != null);
                 }
             }
@@ -417,12 +421,12 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         }
     }
     public void darkenNonTavernHexagons() {
-    	ArrayList<int []> positions = new ArrayList<> ();
+        ArrayList<int []> positions = new ArrayList<> ();
         for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
             for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
                 boolean any = false;
                 for (int k = 0; k < 6; k++) {
-                	int [] dx = i % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
+                    int [] dx = i % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
                     int [] dy = i % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
                     int r1 = i + dx[k], c1 = j + dy[k];
                     dx = r1 % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
@@ -434,12 +438,12 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                     int [] rows = { r1, r2, r3 }, cols = { c1, c2, c3 };
                     boolean all = false;
                     if (Gameboard.isValid(r3, c3)) {
-                    	all = true;
-                    	for (int x = 0; x < 3; x++) {
-                    		int r = rows[x], c = cols[x];
-                    		if (!(board.board[r][c].getSettlement() != null && board.board[r][c].getSettlement().getOwnerID() == currentPlayerID))
-                    			all = false;
-                    	}
+                        all = true;
+                        for (int x = 0; x < 3; x++) {
+                            int r = rows[x], c = cols[x];
+                            if (!(board.board[r][c].getSettlement() != null && board.board[r][c].getSettlement().getOwnerID() == currentPlayerID))
+                                all = false;
+                        }
                     } if (all) any = true;
                 }
                 if (any && board.board[i][j].getSettlement() == null) positions.add(new int[] {i, j});
@@ -447,10 +451,10 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         }
 
         for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
-	        for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
-	                board.board[i][j].setDarkened(true);
-	        }
-	    }
+            for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
+                board.board[i][j].setDarkened(true);
+            }
+        }
         for (int [] arr: positions) {
             board.board[arr[0]][arr[1]].setDarkened(false);
         }
@@ -460,60 +464,60 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 
     }
     public void mouseReleased(MouseEvent e) {
-    	switch (state) {
-	        case settlementPlacement:
+        switch (state) {
+            case settlementPlacement:
 //	        	for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
 //	                for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
 //	                    board.board[i][j].setHighlighted(false);
 //	                }
 //	            }
-	            if (tempSettlement != null) {
-		            board.board[selectedRow][selectedCol].setSettlement(tempSettlement);
-		            tempSettlement = null;
-		            undarkenHexagons();
-		            if (players[currentPlayerID].getTerrainCard().isHighlighted) {
-		            	players[currentPlayerID].useTerrainCard();
-		            	darkenHexagons(players[currentPlayerID].getTerrainCard().getID());
-		            }
-                    for (LocationTile tile: players[currentPlayerID].getlocationTiles()) {
-                    	if (tile.isHighlighted) {
-                    		switch (tile.getName()) {
-                    		case "Oracle":
-                    			darkenHexagons(players[currentPlayerID].getTerrainCard().getID());
-                    			break;
-                    		case "Farm":
-                    			darkenHexagons(5);
-                    			break;
-                    		case "Oasis":
-                    			darkenHexagons(1);
-                    			break;
-                    		case "Tower":
-                    			darkenNonTowerHexagons();
-                    			break;
-                    		case "Tavern":
-                    			darkenNonTavernHexagons();
-                    			break;
-                    		}
-                    	}
-                    } 
-                    for (LocationTile tile: players[currentPlayerID].getlocationTiles()) 
-                    	if (tile.isHighlighted) {
-                    		tile.isHighlighted = false; tile.isDarkened = true;
-                    		state = GameState.cardOrLocationTileSelection;
-                    	}
-		            if (players[currentPlayerID].getMandatorySettlementsLeft() == 0) {
-		            	players[currentPlayerID].getTerrainCard().setHighlighted(false);
-		            	players[currentPlayerID].getTerrainCard().isDarkened = true;
-		            	state = GameState.cardOrLocationTileSelection;
-		            	for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
-		                    for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
-		                        board.board[i][j].setDarkened(false);
-		                    }
-		                }
-		            }
-		            break; 
-	            }
-    	} 
+                if (tempSettlement != null) {
+                    board.board[selectedRow][selectedCol].setSettlement(tempSettlement);
+                    tempSettlement = null;
+                    undarkenHexagons();
+                    if (players[currentPlayerID].getTerrainCard().isHighlighted) {
+                        players[currentPlayerID].useTerrainCard();
+                        darkenHexagons(players[currentPlayerID].getTerrainCard().getID());
+                    }
+//                    for (LocationTile tile: players[currentPlayerID].getlocationTiles()) {
+//                        if (tile.isHighlighted) {
+//                            switch (tile.getName()) {
+//                                case "Oracle":
+//                                    darkenHexagons(players[currentPlayerID].getTerrainCard().getID());
+//                                    break;
+//                                case "Farm":
+//                                    darkenHexagons(5);
+//                                    break;
+//                                case "Oasis":
+//                                    darkenHexagons(1);
+//                                    break;
+//                                case "Tower":
+//                                    darkenNonTowerHexagons();
+//                                    break;
+//                                case "Tavern":
+//                                    darkenNonTavernHexagons();
+//                                    break;
+//                            }
+//                        }
+//                    }
+                    for (LocationTile tile: players[currentPlayerID].getlocationTiles())
+                        if (tile.isHighlighted) {
+                            tile.isHighlighted = false; tile.isDarkened = true;
+                            state = GameState.cardOrLocationTileSelection;
+                        }
+                    if (players[currentPlayerID].getMandatorySettlementsLeft() == 0) {
+                        players[currentPlayerID].getTerrainCard().setHighlighted(false);
+                        players[currentPlayerID].getTerrainCard().isDarkened = true;
+                        state = GameState.cardOrLocationTileSelection;
+                        for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
+                            for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
+                                board.board[i][j].setDarkened(false);
+                            }
+                        }
+                    }
+                    break;
+                }
+        }
         if (advanceState) {
             state = state.nextState();
             advanceState = false;
