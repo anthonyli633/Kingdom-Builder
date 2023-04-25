@@ -49,11 +49,11 @@ public class Player {
     public boolean isFirstPlayer() { return firstPlayer; }
     
     public void resetSettlementCounts() {
-    	mandatorySettlementsLeft = Math.max(3, totalSettlementsLeft);
+    	mandatorySettlementsLeft = Math.min(3, totalSettlementsLeft);
     	turnSettlementsLeft = mandatorySettlementsLeft;
     	for (LocationTile tile: getlocationTiles()) {
     		if (!tile.isDarkened) turnSettlementsLeft++;
-    	} turnSettlementsLeft = Math.max(turnSettlementsLeft, totalSettlementsLeft);
+    	} turnSettlementsLeft = Math.min(turnSettlementsLeft, totalSettlementsLeft);
     }
     public void useTerrainCard() {
     	turnSettlementsLeft --;
