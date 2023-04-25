@@ -86,7 +86,7 @@ public class Hexagon {
         Point [] coords = new Point[6];
         double theta = Math.PI / 6;
         for (int i = 0; i < 6; i++) {
-            coords[i] = new Point((int) (SIDE_LENGTH * Math.cos(theta) + centerX), (int) (SIDE_LENGTH * Math.sin(theta) + centerY));
+            coords[i] = new Point((int) Math.round(SIDE_LENGTH * Math.cos(theta) + centerX), (int) Math.round(SIDE_LENGTH * Math.sin(theta) + centerY));
             theta += Math.PI / 3;
         } return coords;
     }
@@ -94,7 +94,7 @@ public class Hexagon {
         Point [] coords = new Point[6];
         double theta = Math.PI / 6;
         for (int i = 0; i < 6; i++) {
-            coords[i] = new Point((int) (SIDE_LENGTH * Math.cos(theta) + x), (int) (SIDE_LENGTH * Math.sin(theta) + y));
+            coords[i] = new Point((int) Math.round(SIDE_LENGTH * Math.cos(theta) + x), (int) Math.round(SIDE_LENGTH * Math.sin(theta) + y));
             theta += Math.PI / 3;
         } return coords;
     }
@@ -112,7 +112,7 @@ public class Hexagon {
     }
     /* Returns whether this hexagon contains the point (x, y) */
     public boolean contains(int x, int y) {
-        return getPolygon().contains(x, y);
+        return getPolygon().contains(x, y); 
     }
     /* Returns whether this hexagon is on the edge of the game board */
     public boolean isOnBorder() {
@@ -131,12 +131,12 @@ public class Hexagon {
             locationTile.display(g);
         }
         if (type == 8) {
-            int topLeftX = centerX - (int) Math.round(SIDE_LENGTH * Math.sqrt(3) / 2), topLeftY = (int) (centerY - SIDE_LENGTH);
-            g.drawImage(castle, topLeftX, topLeftY - 1, (int) Math.round(SIDE_LENGTH * Math.sqrt(3)), (int) (2 * SIDE_LENGTH), null);
+            int topLeftX = (int) Math.round(centerX - SIDE_LENGTH * Math.sqrt(3) / 2), topLeftY = (int) Math.round(centerY - SIDE_LENGTH);
+            g.drawImage(castle, topLeftX, topLeftY - 1, (int) Math.round(SIDE_LENGTH * Math.sqrt(3)), (int) Math.round(2 * SIDE_LENGTH), null);
         }
 
         if (isDarkened) {
-            g.setColor(new Color(0, 0, 0, 100));
+            g.setColor(KingdomBuilderPanel.SHADE);
             g.fillPolygon(getPolygon());
         }
         if (isHighlighted) {
