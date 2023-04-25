@@ -13,7 +13,7 @@ public class TerrainCard {
 	static BufferedImage [] cardImages;
 	static String [] names = "Canyons Deserts Flowers Forests Mountains Plains Water".split(" ");
 	
-	private boolean isShown, isHighlighted;
+	public boolean isShown, isHighlighted;
 	private int x, y;
 	private int width, height;
 	boolean isDarkened;
@@ -36,6 +36,10 @@ public class TerrainCard {
 		g.setColor(Color.YELLOW);
 		if (isHighlighted) g.fillRoundRect(x - 7, y - 7, width + 14, height + 14, 30, 30);
 		g.drawImage(cardImages[id], x, y, width, height, null);
+		if (isDarkened) {
+			g.setColor(KingdomBuilderPanel.SHADE);
+			g.fillRoundRect(x, y, width, height, 30, 30);
+		}
 	}
 	public void displayBack(Graphics g) {
 		g.drawImage(CARD_BACK, x, y, width, height, null);
