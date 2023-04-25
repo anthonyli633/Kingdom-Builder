@@ -128,13 +128,13 @@ public class Gameboard {
 
     /* Returns the coordiantes of a hexagon at a specific row and col */
     public static Point getCoords(int row, int col) {
-        int x = KingdomBuilderPanel.GAMEBOARD_MARGIN_X + 30, y = KingdomBuilderPanel.GAMEBOARD_MARGIN_Y;
+        double x = KingdomBuilderPanel.GAMEBOARD_MARGIN_X + 30, y = KingdomBuilderPanel.GAMEBOARD_MARGIN_Y;
         if (row % 2 == 0) {
-            x += (int) Math.round(Hexagon.SIDE_LENGTH * (2 * col + 1) * Math.sqrt(3) / 2);
+            x += Hexagon.SIDE_LENGTH * (2 * col + 1) * Math.sqrt(3) / 2;
             y += Hexagon.SIDE_LENGTH * (3 * row / 2 + 1);
         } else {
-            x += (int) Math.round(Hexagon.SIDE_LENGTH * (col + 1) * Math.sqrt(3));
+            x += Hexagon.SIDE_LENGTH * (col + 1) * Math.sqrt(3);
             y += Hexagon.SIDE_LENGTH * (6 * (row / 2 + 1) - 1) / 2;
-        } return new Point(x, y);
+        } return new Point((int) Math.round(x), (int) Math.round(y));
     }
 }
