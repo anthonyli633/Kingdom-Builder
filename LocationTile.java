@@ -19,11 +19,17 @@ public class LocationTile extends Hexagon {
     }
 
     public BufferedImage getImage() { return images[id]; }
+    public int getType() { return id; }
+    public String getName() { return names[id]; }
     public void display(Graphics g) {
         Point center = getCenterCoords();
-        g.drawImage(getImage(), (int) (center.x - Math.round(Hexagon.SIDE_LENGTH * Math.sqrt(3) / 2)), (int) Math.round(center.y - Hexagon.SIDE_LENGTH), (int) Math.round(SIDE_LENGTH * Math.sqrt(3)), (int) (2 * SIDE_LENGTH), null);
+        g.drawImage(getImage(), (int) (Math.round(center.x - Hexagon.SIDE_LENGTH * Math.sqrt(3) / 2)), (int) Math.round(center.y - Hexagon.SIDE_LENGTH), (int) Math.round(SIDE_LENGTH * Math.sqrt(3)), (int) Math.round(2 * SIDE_LENGTH), null);
         g.setColor(Color.YELLOW);
-        if (super.isHighlighted) g.drawPolygon(super.getPolygon());
+        if (isDarkened) {
+            g.setColor(KingdomBuilderPanel.SHADE);
+            g.fillPolygon(getPolygon());
+        }
+        if (isHighlighted) g.drawPolygon(super.getPolygon());
         g.setColor(Color.BLACK);
     }
 }
