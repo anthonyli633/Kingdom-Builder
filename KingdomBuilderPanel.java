@@ -488,7 +488,8 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                         }
                     } if (all) any = true;
                 }
-                if (any && board.board[i][j].getSettlement() == null) positions.add(new int[] {i, j});
+                int type = board.board[i][j].getType();
+                if (any && board.board[i][j].getSettlement() == null && type != 4 && type != 6) positions.add(new int[] {i, j});
             }
         }
 
