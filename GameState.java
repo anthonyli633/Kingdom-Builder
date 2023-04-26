@@ -6,8 +6,8 @@ public enum GameState {
         switch (KingdomBuilderPanel.state) {
             case cardOrLocationTileSelection: return cardOrLocationTileSelectionOrsettlementPlacement;
             case cardOrLocationTileSelectionOrsettlementPlacement: return settlementPlacement;
-            case settlementPlacement: return (KingdomBuilderPanel.players[KingdomBuilderPanel.currentPlayerID].getMandatorySettlementsLeft() == 0 ? drawCard : cardOrLocationTileSelection);
-            default: return null;
+            case settlementPlacement: return cardOrLocationTileSelection;
+            default: return null; 
         }
     }
-}
+} 
