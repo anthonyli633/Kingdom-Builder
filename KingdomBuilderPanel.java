@@ -285,9 +285,9 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                                     darkenNonSettlements();
                                     break;
                                 case "Harbor":
-                                	isMovable = true;
-                                	darkenNonSettlements();
-                                	break;
+                                    isMovable = true;
+                                    darkenNonSettlements();
+                                    break;
                                 case "Oracle":
                                     isMovable = false;
                                     darkenHexagons(players[currentPlayerID].getTerrainCard().getID());
@@ -331,7 +331,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                             tempSettlement = new Settlement(currentPlayerID, board.board[i][j]);
                             selectedRow = i; selectedCol = j;
                             hasOneSelected = true;
-                            break out; 
+                            break out;
                         }
                         if (isMovable && board.board[i][j].contains(x, y) && !board.board[i][j].isDarkened) {
                             board.board[i][j].setHighlighted(true);
@@ -379,13 +379,12 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                         switch (chosenLocationTile.getName()) {
                             case "Barn":
                                 darkenHexagons(players[currentPlayerID].getTerrainCard().getID());
-                                repaint();
+                                board.board[selectedRow][selectedCol].setDarkened(false);
                                 break;
                             case "Harbor":
-                            	System.out.println("L");
+                                System.out.println("L");
                                 darkenHexagons(6);
                                 board.board[selectedRow][selectedCol].setDarkened(false);
-                                repaint();
                                 break;
                         }
                     }
@@ -400,7 +399,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                 board.board[i][j].setDarkened(false);
             }
         }
-    } 
+    }
     public void darkenHexagons(int type) {
         ArrayList<int []> positions = new ArrayList<> ();
         for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
@@ -564,6 +563,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                     for (LocationTile tile: players[currentPlayerID].getlocationTiles())
                         if (tile.isHighlighted) {
                             tile.isHighlighted = false; tile.isDarkened = true;
+                            undarkenHexagons();
                             state = GameState.cardOrLocationTileSelection;
                         }
                     if (players[currentPlayerID].getMandatorySettlementsLeft() == 0) {
