@@ -114,63 +114,63 @@ public class Hexagon {
     }
     /* Returns whether this hexagon contains the point (x, y) */
     public boolean contains(int x, int y) {
-        return getPolygon().contains(x, y); 
+        return getPolygon().contains(x, y);
     }
     /* Returns whether this hexagon is on the edge of the game board */
     public boolean isOnBorder() {
         return row == 0 || row == Gameboard.LARGE_SIZE - 1 || col == 0 || col == Gameboard.LARGE_SIZE - 1;
-    } 
+    }
     public Settlement getSettlement() {
         return settlement;
     }
     public void setSettlement(Gameboard board, Settlement settlement) {
-    	Player p = KingdomBuilderPanel.players[KingdomBuilderPanel.currentPlayerID];
+        Player p = KingdomBuilderPanel.players[KingdomBuilderPanel.currentPlayerID];
         this.settlement = settlement;
         if (settlement == null) return;
         int [] dx = row % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
         int [] dy = row % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
         for (int i = 0; i < 6; i++) {
-        	int r = row + dx[i], c = col + dy[i];
-        	if (Gameboard.isValid(r, c) && board.board[r][c].getNumLocationTiles() > 0) {
-        		boolean hasObtainedBefore = false;
-        		for (LocationTile other: p.getLocationTiles())
-        			if (other.getRow() == r && other.getCol() == c) hasObtainedBefore = true;
-        		if (!hasObtainedBefore) {
-        			board.board[r][c].useLocationTile();
-            		int type = board.board[r][c].locationTile.getType();
-            		System.out.println("added location tile");
-            		p.addLocationTile(new LocationTile(r, c, type));
-        		}
-        	}
-        	if (Gameboard.isValid(r, c)) {
-        		boolean hasObtainedBefore = false;
-        		for (LocationTile other: p.getLocationTiles())
-        			if (other.getRow() == r && other.getCol() == c) hasObtainedBefore = true;
-        		int count = board.board[r][c].getNumLocationTiles();
-        		if (count > 0 || count == 0 && hasObtainedBefore) p.getTotalLocationTiles().add(new LocationTile(r, c, type));
-        	}
+            int r = row + dx[i], c = col + dy[i];
+            if (Gameboard.isValid(r, c) && board.board[r][c].getNumLocationTiles() > 0) {
+                boolean hasObtainedBefore = false;
+                for (LocationTile other: p.getLocationTiles())
+                    if (other.getRow() == r && other.getCol() == c) hasObtainedBefore = true;
+                if (!hasObtainedBefore) {
+                    board.board[r][c].useLocationTile();
+                    int type = board.board[r][c].locationTile.getType();
+                    System.out.println("added location tile");
+                    p.addLocationTile(new LocationTile(r, c, type));
+                }
+            }
         }
     }
     public void removeSettlement(Gameboard board) {
-    	Player p = KingdomBuilderPanel.players[KingdomBuilderPanel.currentPlayerID];
+        System.out.println("L");
+        Player p = KingdomBuilderPanel.players[KingdomBuilderPanel.currentPlayerID];
         settlement = null;
         int [] dx = row % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
         int [] dy = row % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
         for (int i = 0; i < 6; i++) {
-        	int r = row + dx[i], c = col + dy[i];
-        	if (Gameboard.isValid(r, c) && board.board[r][c].getNumLocationTiles() > 0) {
-        		System.out.println("L");
-        		p.getTotalLocationTiles().remove(board.board[r][c].locationTile);
-        		if (!p.getTotalLocationTiles().contains(board.board[r][c].locationTile))
-        			p.getLocationTiles().remove(board.board[r][c].locationTile);
-        	}
+            int r = row + dx[i], c = col + dy[i];
+            if (Gameboard.isValid(r, c) && board.board[r][c].getNumLocationTiles() > 0) {
+                boolean hasAdjacentSettlements = false;
+                dx = row % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
+                dy = row % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
+                for (int j = 0; j < 6; j++) {
+                    int r1 = r + dx[j], c1 = c + dy[j];
+                    if (board.board[r1][c1].getSettlement() != null && board.board[r1][c1].getSettlement().getOwnerID() == KingdomBuilderPanel.currentPlayerID)
+                        hasAdjacentSettlements = true;
+                }
+                if (!p.getLocationTiles().contains(board.board[r][c].locationTile) && !hasAdjacentSettlements)
+                    p.getLocationTiles().remove(board.board[r][c].locationTile);
+            }
         }
     }
     public int getNumLocationTiles() {
-    	return numLocationTiles;
+        return numLocationTiles;
     }
     public void useLocationTile() {
-    	numLocationTiles --;
+        numLocationTiles --;
     }
 
     /* Displays the hexagon (highlighted portion) */
