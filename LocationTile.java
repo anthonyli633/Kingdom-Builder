@@ -14,7 +14,7 @@ public class LocationTile extends Hexagon {
     private int id;
 
     public LocationTile(int row, int col, int id) {
-        super(row, col, 7);
+        super(row, col, 7); 
         this.id = id;
     }
 
@@ -31,5 +31,13 @@ public class LocationTile extends Hexagon {
         }
         if (isHighlighted) g.drawPolygon(super.getPolygon());
         g.setColor(Color.BLACK);
+    }
+    public boolean equals(Object o) {
+    	if (o.getClass() != this.getClass()) return false;
+    	LocationTile t = (LocationTile) o;
+    	return getRow() == t.getRow() && getCol() == t.getCol() && id == t.getType();
+    }
+    public String toString() {
+    	return getRow() + " " + getCol() + " " + id;
     }
 }
