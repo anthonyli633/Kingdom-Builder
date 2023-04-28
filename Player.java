@@ -11,7 +11,7 @@ public class Player {
     private int mandatorySettlementsLeft, turnSettlementsLeft, totalSettlementsLeft;
     private int id;
     private TerrainCard terrainCard;
-    private ArrayList<LocationTile> locationTiles = new ArrayList<> ();
+    private ArrayList<LocationTile> locationTiles = new ArrayList<> (), totalLocationTiles = new ArrayList<> ();
     private ArrayList<int []> settlementLocations = new ArrayList<> ();
     private boolean firstPlayer;
     
@@ -25,17 +25,17 @@ public class Player {
         	playerBox = ImageIO.read(this.getClass().getResource("/Images/Light Wood Box.png"));
         } catch (Exception e) { e.printStackTrace(); }
 
-        int row = id / 2, col = id % 2;
-        int width = 225, height = Gameboard.SMALL_HEIGHT + 20;
-        int x = KingdomBuilderPanel.GAMEBOARD_MARGIN_X - width + col * (width + Gameboard.LARGE_WIDTH + 35), y = KingdomBuilderPanel.GAMEBOARD_MARGIN_Y - 28 + row * height;
-        for (int i = 0; i < 6; i++) {
-            int row1 = i / 4, col1 = i % 4;
-            int x1 = x + col1 * 50 + 15;
-            int y1 = 170 + row * height + TerrainCard.HEIGHT + row1 * 53 + 10;
-            int [] vals = new int[] {1, 3, 4, 6, 7};
-            locationTiles.add(new LocationTile(0, 0, vals[(int) (Math.random() * vals.length)]));
-            locationTiles.get(i).setCoords((int) (x1 + Math.round(Hexagon.SIDE_LENGTH * Math.sqrt(3) / 2)), (int) Math.round(y1 + Hexagon.SIDE_LENGTH));
-        }
+//        int row = id / 2, col = id % 2;
+//        int width = 225, height = Gameboard.SMALL_HEIGHT + 20;
+//        int x = KingdomBuilderPanel.GAMEBOARD_MARGIN_X - width + col * (width + Gameboard.LARGE_WIDTH + 35), y = KingdomBuilderPanel.GAMEBOARD_MARGIN_Y - 28 + row * height;
+//        for (int i = 0; i < 6; i++) {
+//            int row1 = i / 4, col1 = i % 4;
+//            int x1 = x + col1 * 50 + 15;
+//            int y1 = 170 + row * height + TerrainCard.HEIGHT + row1 * 53 + 10;
+//            int [] vals = new int[] {0, 1, 2, 3, 4, 5, 6, 7}; 
+//            locationTiles.add(new LocationTile(0, 0, vals[(int) (Math.random() * vals.length)]));
+//            locationTiles.get(i).setCoords((int) (x1 + Math.round(Hexagon.SIDE_LENGTH * Math.sqrt(3) / 2)), (int) Math.round(y1 + Hexagon.SIDE_LENGTH));
+//        }
     }
 
     public int getScore() { return score; }
@@ -44,14 +44,34 @@ public class Player {
     public int getTurnSettlementsLeft() { return turnSettlementsLeft; }
     public int getTotalSettlementsLeft() { return totalSettlementsLeft; }
     public TerrainCard getTerrainCard() { return terrainCard; }
-    public ArrayList<LocationTile> getlocationTiles() { return locationTiles; }
+    public ArrayList<LocationTile> getLocationTiles() { return locationTiles; }
+    public ArrayList<LocationTile> getTotalLocationTiles() { return totalLocationTiles; }
     public ArrayList<int []> getSettlementLocations() { return settlementLocations; }
     public boolean isFirstPlayer() { return firstPlayer; }
     
+    public void addLocationTile(LocationTile tile) {
+    	int row = id / 2, col = id % 2;
+        int width = 225, height = Gameboard.SMALL_HEIGHT + 20;
+        int x = KingdomBuilderPanel.GAMEBOARD_MARGIN_X - width + col * (width + Gameboard.LARGE_WIDTH + 35), y = KingdomBuilderPanel.GAMEBOARD_MARGIN_Y - 28 + row * height;
+    	int i = locationTiles.size();
+    	int row1 = i / 4, col1 = i % 4;
+        int x1 = x + col1 * 50 + 15;
+        int y1 = 170 + row * height + TerrainCard.HEIGHT + row1 * 53 + 10;
+        int [] vals = new int[] {0, 1, 2, 3, 4, 5, 6, 7}; 
+        tile.setCoords((int) (x1 + Math.round(Hexagon.SIDE_LENGTH * Math.sqrt(3) / 2)), (int) Math.round(y1 + Hexagon.SIDE_LENGTH));
+        // tile.setDarkened(true);
+    	if (!locationTiles.contains(tile)) locationTiles.add(tile);
+    	totalLocationTiles.add(tile);
+    }
+    
+    public void resetUsed() {
+    	terrainCard.isDarkened = false;
+    	for (int i = 0; i < locationTiles.size(); i++) locationTiles.get(i).setDarkened(false);
+    }
     public void resetSettlementCounts() {
     	mandatorySettlementsLeft = Math.min(3, totalSettlementsLeft);
     	turnSettlementsLeft = mandatorySettlementsLeft;
-    	for (LocationTile tile: getlocationTiles()) {
+    	for (LocationTile tile: getLocationTiles()) {
     		if (!tile.isDarkened) turnSettlementsLeft++;
     	} turnSettlementsLeft = Math.min(turnSettlementsLeft, totalSettlementsLeft);
     }
