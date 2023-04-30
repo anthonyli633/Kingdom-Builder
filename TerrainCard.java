@@ -17,7 +17,7 @@ public class TerrainCard {
 	private int x, y;
 	private int width, height;
 	boolean isDarkened;
-	private int id;
+	private int id; 
 	
 	public TerrainCard(int id) {
 		this.id = id;
