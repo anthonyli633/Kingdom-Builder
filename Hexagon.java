@@ -109,7 +109,7 @@ public class Hexagon {
         for (Point p: getCoords()) hexagon.addPoint(p.x, p.y);
     }
     /* Returns a polygon representing the hexagon */
-    public Polygon getPolygon() {
+    public Polygon getPolygon() { 
         return hexagon;
     }
     /* Returns whether this hexagon contains the point (x, y) */
@@ -138,7 +138,6 @@ public class Hexagon {
                 if (!hasObtainedBefore) {
                     board.board[r][c].useLocationTile();
                     int type = board.board[r][c].locationTile.getType();
-                    System.out.println("added location tile");
                     p.addLocationTile(new LocationTile(r, c, type));
                 }
             }
@@ -154,14 +153,16 @@ public class Hexagon {
             int r = row + dx[i], c = col + dy[i];
             if (Gameboard.isValid(r, c) && board.board[r][c].getNumLocationTiles() > 0) {
                 boolean hasAdjacentSettlements = false;
-                dx = row % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
-                dy = row % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
+                dx = r % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
+                dy = r % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
                 for (int j = 0; j < 6; j++) {
                     int r1 = r + dx[j], c1 = c + dy[j];
                     if (board.board[r1][c1].getSettlement() != null && board.board[r1][c1].getSettlement().getOwnerID() == KingdomBuilderPanel.currentPlayerID)
                         hasAdjacentSettlements = true;
                 }
-                if (!p.getLocationTiles().contains(board.board[r][c].locationTile) && !hasAdjacentSettlements)
+                System.out.println(hasAdjacentSettlements);
+                System.out.println(p.getLocationTiles() + " " + board.board[r][c].locationTile);
+                if (p.getLocationTiles().contains(board.board[r][c].locationTile) && !hasAdjacentSettlements)
                     p.getLocationTiles().remove(board.board[r][c].locationTile);
             }
         }
