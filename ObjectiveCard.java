@@ -22,17 +22,17 @@ public class ObjectiveCard {
 	
 	static String [] names = "Citizens Discoverers Farmers Fishermen Hermits Knights Lords Merchants Miners Workers".split(" ");
 	static int WIDTH = 108, HEIGHT = 154;
-	
+	 
 	private int width, height;
 	private int id;
 	private int topLeftX, topLeftY;
 	
 	public ObjectiveCard(int id) {
-		width = WIDTH; height = HEIGHT;
+		width = WIDTH * 7 / 4; height = HEIGHT * 7 / 4;
 		this.id = id;
 	}
 	public ObjectiveCard(int id, int x, int y) {
-		width = WIDTH; height = HEIGHT;
+		width = WIDTH * 7 / 4; height = HEIGHT * 7 / 4;
 		this.id = id;
 		setCoords(x, y);
 	}
@@ -43,20 +43,21 @@ public class ObjectiveCard {
 		catch (IOException e) { e.printStackTrace(); }
 		g.drawImage(img, topLeftX, topLeftY, width, height, null);
 	}
+	
 	public void score() {
 		
 	}
-	
+	 
 	public int getID() { return id; }
 	
 	public void setCoords(int x, int y) { topLeftX = x; topLeftY = y; }
-	public void enlarge() { width *= 2; height *= 2; }
+//	public void enlarge() { width *= 7 / 4; height *= 7 / 4; }
 	public void reset() { width = WIDTH; height = HEIGHT; }
 	
 	public boolean isEnlarged() { return width > WIDTH; }
 	public boolean contains(int x, int y) { return x >= topLeftX && y >= topLeftY && x <= topLeftX + width && y <= topLeftY + height; }
 	
-	public String toString() { return names[id]; }
+	public String toString() { return names[id]; } 
 	
 	public static int scoreFisherman(Gameboard board, Player p) { return 0; }
 	public static int scoreMerchant(Gameboard board, Player p) { return 0; }
