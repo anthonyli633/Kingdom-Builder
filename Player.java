@@ -36,7 +36,7 @@ public class Player {
 //            locationTiles.add(new LocationTile(0, 0, vals[(int) (Math.random() * vals.length)]));
 //            locationTiles.get(i).setCoords((int) (x1 + Math.round(Hexagon.SIDE_LENGTH * Math.sqrt(3) / 2)), (int) Math.round(y1 + Hexagon.SIDE_LENGTH));
 //        }
-    }
+    } 
 
     public int getScore() { return score; }
     public int getID() { return id; }
@@ -59,7 +59,7 @@ public class Player {
         int y1 = 170 + row * height + TerrainCard.HEIGHT + row1 * 53 + 10;
         int [] vals = new int[] {0, 1, 2, 3, 4, 5, 6, 7}; 
         tile.setCoords((int) (x1 + Math.round(Hexagon.SIDE_LENGTH * Math.sqrt(3) / 2)), (int) Math.round(y1 + Hexagon.SIDE_LENGTH));
-        // tile.setDarkened(true);
+        tile.setDarkened(true);
     	if (!locationTiles.contains(tile)) locationTiles.add(tile);
     	totalLocationTiles.add(tile);
     }
