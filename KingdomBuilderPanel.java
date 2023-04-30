@@ -27,12 +27,14 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 
     public static Player [] players = new Player[4];
     static int currentPlayerID = 0;
-
+ 
     private BufferedImage summary1, summary2, summary3, summary4;
-    private BufferedImage background, frame, interior, strip, leftArrow;
+    private BufferedImage background, frame, interior, strip, leftArrow, rightArrow;
     private BufferedImage [] objectiveIcons;
+    
+    private Button endTurnButton;
 
-    private boolean isObjectiveExpanded;
+    private boolean isObjectiveExpanded = false;
     private Rectangle expandPanel;
 
     static GameState state, prevState;
@@ -68,6 +70,15 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         } catch (Exception e) { e.printStackTrace(); }
         try {
             BufferedImage img1 = ImageIO.read(this.getClass().getResource("/Images/button.png"));
+            BufferedImage img2 = ImageIO.read(this.getClass().getResource("/Images/button (1).png"));
+            BufferedImage img3 = ImageIO.read(this.getClass().getResource("/Images/button (2).png"));
+            endTurnButton = new Button(img1, img2, img3);
+            endTurnButton.setWidth(140); endTurnButton.setHeight(50);
+            endTurnButton.setCenterCoords(1600, 965);
+            endTurnButton.setEnabled(false);
+        } catch (Exception e) { e.printStackTrace(); }
+        try {
+            BufferedImage img1 = ImageIO.read(this.getClass().getResource("/Images/button.png"));
             BufferedImage img2 = ImageIO.read(this.getClass().getResource("/Images/button (2).png"));
             BufferedImage img3 = ImageIO.read(this.getClass().getResource("/Images/button (1).png"));
         } catch (Exception e) { e.printStackTrace(); }
@@ -77,6 +88,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             interior = ImageIO.read(this.getClass().getResource("/Images/Ocean Background.png"));
             strip = ImageIO.read(this.getClass().getResource("/Images/Light Wood Strip.png"));
             leftArrow = ImageIO.read(this.getClass().getResource("/Images/Left Arrow Vector 1.png"));
+            rightArrow = ImageIO.read(this.getClass().getResource("/Images/Right Arrow Vector 1.png"));
             objectiveIcons = new BufferedImage[ObjectiveCard.names.length];
             for (int i = 0; i < ObjectiveCard.names.length; i++) {
                 objectiveIcons[i] = ImageIO.read(this.getClass().getResource("/Images/" + ObjectiveCard.names[i] + " Icon.png"));
@@ -170,10 +182,18 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         drawCenteredString(g, "Deck", f, 5, 135, 330);
         drawCenteredString(g, "Discard Pile", f, 5, 135, 530);
         // Deck and Discard images
-        if (true || !deck.isEmpty()) { cardBack.setCoords(20, 340); cardBack.displayBack(g); }
+        if (!deck.isEmpty()) { cardBack.setCoords(20, 340); cardBack.displayBack(g); }
+        if (!discardPile.isEmpty()) { 
+        	TerrainCard card = discardPile.get(discardPile.size() - 1);
+        	card.isDarkened = false;
+        	card.setCoords(20, 540);
+        	card.setDimensions(100, 150);
+        	card.displayFront(g);
+        }
 
         // Player Boxes Display
-        for (int i = 0; i < 4; i++) if (i != currentPlayerID) players[i].display(g);
+        for (int i = 0; i < 4; i++) 
+        	if (i != currentPlayerID && (!isObjectiveExpanded || i % 2 == 0)) players[i].display(g);
         players[currentPlayerID].display(g);
         if (tempSettlement != null) tempSettlement.display(g);
 
@@ -195,8 +215,8 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         g.drawImage(summary3, 75 - width / 2, 710, width, height, null);
         g.drawImage(summary4, 75 - width / 2, 715 + height, width, height, null);
 
-        // Continue Button Display
-
+        // End Turn Button Display
+        endTurnButton.display(g);
 
         g.drawImage(strip, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 310, GAMEBOARD_MARGIN_Y - 30, 50, Gameboard.LARGE_HEIGHT + 45, null);
         g.setColor(new Color(119, 47, 47));
@@ -213,6 +233,26 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             g.fillRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45);
             height = 40;
             g.drawImage(leftArrow, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, (GAMEBOARD_MARGIN_Y + Gameboard.LARGE_HEIGHT + 25) / 2 + height / 2, 40, height, null);
+        } else {
+        	g.drawImage(strip, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH +50 , GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45, null);
+            g.setColor(new Color(119, 47, 47));
+            g.drawRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 50 , GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45);
+            g.setColor(new Color(242, 235, 205, 200));
+            g.fillRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 50 , GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45);
+
+            g.drawImage(strip, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 90, GAMEBOARD_MARGIN_Y - 30, 200, Gameboard.LARGE_HEIGHT + 45, null);
+            g.setColor(new Color(119, 47, 47));
+            g.drawRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 90, GAMEBOARD_MARGIN_Y - 30, 200, Gameboard.LARGE_HEIGHT + 45);
+            g.setColor(new Color(242, 235, 205, 200));
+            g.fillRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 90, GAMEBOARD_MARGIN_Y - 30, 200, Gameboard.LARGE_HEIGHT + 45);
+            height = 40;
+            objective1.setCoords(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH+95, 100);
+            objective2.setCoords(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH+95, 375);
+            objective3.setCoords(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH+95, 650);
+            objective1.display(g);
+            objective2.display(g);
+            objective3.display(g);
+            g.drawImage(rightArrow, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH +50, (GAMEBOARD_MARGIN_Y + Gameboard.LARGE_HEIGHT + 25) / 2 + height / 2, 40, height, null);
         }
 
         int gap = (Gameboard.LARGE_HEIGHT + 45) / 3;
@@ -231,9 +271,6 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             int x = getX(g, ObjectiveCard.names[objective1.getID()], f, GAMEBOARD_MARGIN_Y - 30 + gap * i, GAMEBOARD_MARGIN_Y - 30 + gap * (i + 1), 0) + 30;
             g.drawString(objectives[i].toString(), x, -(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 325));
         }
-
-        System.out.println(players[currentPlayerID].getLocationTiles());
-        System.out.println();
     }
 
     public static void drawCenteredString(Graphics g, String s, Font f, int x1, int x2, int y) {
@@ -257,8 +294,23 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     @Override
     public void mousePressed(MouseEvent e) {
         int x = e.getX(), y = e.getY();
-
         if (isBeingDragged) return;
+        
+        if (endTurnButton.isEnabled() && endTurnButton.contains(x, y)) {
+        	endTurnButton.click();
+        }
+        
+        int locX = GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270;
+        int locY = GAMEBOARD_MARGIN_Y - 30;
+        if (!isObjectiveExpanded && x >= locX && y >= locY && x <= locX + 40 && y <= locY + Gameboard.LARGE_HEIGHT + 45){
+            isObjectiveExpanded=true;
+        } 
+        locX = GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 50;
+        locY = GAMEBOARD_MARGIN_Y - 30;
+        if (isObjectiveExpanded && x >= locX && y >= locY && x <= locX + 40 && y <= locY + Gameboard.LARGE_HEIGHT + 45){
+            isObjectiveExpanded = false;
+        } repaint();
+        
         switch (state) {
             case cardOrLocationTileSelection:
                 boolean hasOneSelected = false;
@@ -556,6 +608,14 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     }
     public void mouseReleased(MouseEvent e) {
         int x = e.getX(), y = e.getY();
+        if (endTurnButton.contains(x, y) && endTurnButton.isBeingClicked()) {
+        	discardPile.add(players[currentPlayerID].getTerrainCard());
+        	players[currentPlayerID].setTerrainCard(deck.remove(0));
+        	currentPlayerID++; currentPlayerID %= 4;
+        	  
+        	endTurnButton.unclick(); 
+        }
+        
         switch (state) {
             case settlementPlacement:
 //	        	for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
@@ -594,10 +654,12 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                     for (LocationTile tile: players[currentPlayerID].getLocationTiles())
                         if (tile.isHighlighted) {
                             tile.isHighlighted = false; tile.isDarkened = true;
+                            players[currentPlayerID].useLocationTile(tile);
                             undarkenHexagons();
                             state = GameState.cardOrLocationTileSelection;
                         }
                     if (players[currentPlayerID].getMandatorySettlementsLeft() == 0) {
+                    	if (!endTurnButton.isEnabled()) endTurnButton.setEnabled(true);
                         players[currentPlayerID].getTerrainCard().setHighlighted(false);
                         players[currentPlayerID].getTerrainCard().isDarkened = true;
                         state = GameState.cardOrLocationTileSelection;
@@ -653,11 +715,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     @Override
     public void mouseMoved(MouseEvent e) {
         int x = e.getX(), y = e.getY();
-//        objective1.reset(); objective2.reset(); objective3.reset();
-//        if (objective1.contains(x, y)) objective1.enlarge();
-//        else if (objective2.contains(x, y)) objective2.enlarge();
-//        else if (objective3.contains(x, y)) objective3.enlarge();
-//
+        endTurnButton.setHovering(endTurnButton.contains(x, y));
         repaint();
     }
 
