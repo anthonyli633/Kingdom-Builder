@@ -17,7 +17,7 @@ public class Gameboard {
     private int topX, topY; /* the coordinates of the top-left corner */
     public Hexagon [][] board; /* a 2-D array representing the board */
 
-    private Polygon outline;
+    private Polygon outline; 
 
     public static int [] dxEvens = new int[] {0, -1, -1, 0, 1, 1};
     public static int [] dyEvens = new int[] {1, 0, -1, -1, -1, 0};
@@ -101,6 +101,15 @@ public class Gameboard {
         locationTileCoords.addAll(g3.locationTileCoords);
         locationTileCoords.addAll(g4.locationTileCoords);
     }
+    
+    public Hexagon [][] getSmallGameboard(int index) {
+    	Hexagon [][] smallBoard = new Hexagon[SMALL_SIZE][SMALL_SIZE];
+    	for (int i = 0; i < 10; i++) {
+    		for (int j = 0; j < 10; j++) {
+    			smallBoard[i][j] = board[SMALL_SIZE * (index / 2) + i][SMALL_SIZE * (index % 2) + j];
+    		}
+    	} return smallBoard;
+    }
 
     public void display(Graphics g, int x, int y) {
         g.setColor(Color.BLACK);
@@ -123,7 +132,7 @@ public class Gameboard {
             for (int j = 0; j < SIZE; j++) {
                 if (board[i][j].isHighlighted) board[i][j].display(g);
             }
-        }
+        } 
     }
 
     /* Returns the coordiantes of a hexagon at a specific row and col */
