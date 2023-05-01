@@ -144,7 +144,6 @@ public class Hexagon {
         }
     }
     public void removeSettlement(Gameboard board) {
-        System.out.println("L");
         Player p = KingdomBuilderPanel.players[KingdomBuilderPanel.currentPlayerID];
         settlement = null;
         int [] dx = row % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
