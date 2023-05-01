@@ -32,6 +32,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     private BufferedImage background, frame, interior, strip, leftArrow, rightArrow;
     private BufferedImage [] objectiveIcons;
     
+    private ArrayList<String> gameLog = new ArrayList<String> ();   
     private Button endTurnButton;
 
     private boolean isObjectiveExpanded = false;
@@ -284,6 +285,14 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         FontMetrics fm = g.getFontMetrics();
         int x = (((x2 - x1) - fm.stringWidth(s)) / 2) + x1;
         return x;
+    }
+    
+    public void updateScore() {
+    	Player p = players[currentPlayerID];
+    	int score1 = objective1.score(board, p), score2 = objective2.score(board, p), score3 = objective3.score(board, p);
+    	int score = score1 + score2 + score3;
+    	System.out.printf("%s: %d, %s: %d, %s: %d\n", objective1.toString(), score1, objective2.toString(), score2, objective3.toString(), score3);
+    	p.setScore(score);
     }
 
     private boolean advanceState, isMovable;
@@ -608,12 +617,20 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     }
     public void mouseReleased(MouseEvent e) {
         int x = e.getX(), y = e.getY();
+        Player p = players[currentPlayerID];
         if (endTurnButton.contains(x, y) && endTurnButton.isBeingClicked()) {
-        	discardPile.add(players[currentPlayerID].getTerrainCard());
-        	players[currentPlayerID].setTerrainCard(deck.remove(0));
+        	discardPile.add(p.getTerrainCard());
+        	if (deck.isEmpty()) {
+        		deck = (ArrayList<TerrainCard>) discardPile.clone();
+        		discardPile.clear();
+        		Collections.shuffle(deck); 
+        	}
+        	p.setTerrainCard(deck.remove(0));
+        	p.resetSettlementCounts(); p.resetUsed();
         	currentPlayerID++; currentPlayerID %= 4;
         	  
         	endTurnButton.unclick(); 
+        	endTurnButton.setEnabled(false);
         }
         
         switch (state) {
@@ -623,45 +640,26 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 //	                    board.board[i][j].setHighlighted(false);
 //	                }
 //	            }
+            	
                 if (tempSettlement != null && !isMovable) {
                     board.board[selectedRow][selectedCol].setSettlement(board, tempSettlement);
+                    updateScore();
                     tempSettlement = null;
-                    if (players[currentPlayerID].getTerrainCard().isHighlighted) {
-                        players[currentPlayerID].useTerrainCard();
-                        darkenHexagons(players[currentPlayerID].getTerrainCard().getID());
+                    if (p.getTerrainCard().isHighlighted) {
+                        p.useTerrainCard();
+                        darkenHexagons(p.getTerrainCard().getID());
                     }
-//                    for (LocationTile tile: players[currentPlayerID].getlocationTiles()) {
-//                        if (tile.isHighlighted) {
-//                            switch (tile.getName()) {
-//                                case "Oracle":
-//                                    darkenHexagons(players[currentPlayerID].getTerrainCard().getID());
-//                                    break;
-//                                case "Farm":
-//                                    darkenHexagons(5);
-//                                    break;
-//                                case "Oasis":
-//                                    darkenHexagons(1);
-//                                    break;
-//                                case "Tower":
-//                                    darkenNonTowerHexagons();
-//                                    break;
-//                                case "Tavern":
-//                                    darkenNonTavernHexagons();
-//                                    break;
-//                            }
-//                        }
-//                    }
                     for (LocationTile tile: players[currentPlayerID].getLocationTiles())
                         if (tile.isHighlighted) {
                             tile.isHighlighted = false; tile.isDarkened = true;
-                            players[currentPlayerID].useLocationTile(tile);
+                            p.useLocationTile(tile);
                             undarkenHexagons();
                             state = GameState.cardOrLocationTileSelection;
                         }
-                    if (players[currentPlayerID].getMandatorySettlementsLeft() == 0) {
+                    if (p.getMandatorySettlementsLeft() == 0 && p.getTerrainCard().isHighlighted) {
                     	if (!endTurnButton.isEnabled()) endTurnButton.setEnabled(true);
-                        players[currentPlayerID].getTerrainCard().setHighlighted(false);
-                        players[currentPlayerID].getTerrainCard().isDarkened = true;
+                        p.getTerrainCard().setHighlighted(false);
+                        p.getTerrainCard().isDarkened = true;
                         state = GameState.cardOrLocationTileSelection;
                         for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
                             for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
@@ -680,6 +678,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                                 if (i != selectedRow || j != selectedCol) {
                                     tempSettlement = new Settlement(currentPlayerID, board.board[i][j]);
                                     board.board[i][j].setSettlement(board, tempSettlement);
+                                    updateScore();
                                     board.board[i][j].setHighlighted(true);
                                     state = GameState.cardOrLocationTileSelection;
                                     hasMoved = true;
