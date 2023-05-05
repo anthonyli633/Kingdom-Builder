@@ -27,18 +27,20 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 
     public static Player [] players = new Player[4];
     static int currentPlayerID = 0;
- 
+
     private BufferedImage summary1, summary2, summary3, summary4;
     private BufferedImage background, frame, interior, strip, leftArrow, rightArrow;
     private BufferedImage [] objectiveIcons;
-    
-    private ArrayList<String> gameLog = new ArrayList<String> ();   
+
+    private ArrayList<String> gameLog = new ArrayList<String> ();
     private Button endTurnButton;
 
     private boolean isObjectiveExpanded = false;
     private Rectangle expandPanel;
 
     static GameState state, prevState;
+
+    private Random rand = new Random();
 
     public KingdomBuilderPanel() {
         addMouseListener(this);
@@ -140,6 +142,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         // Initiating players
         for (int i = 0; i < 4; i++) players[i] = new Player(i);
         for (int i = 0; i < 4; i++) players[i].setTerrainCard(deck.remove(0));
+        players[rand.nextInt(4)].setFirstPLayer(true);
         // players[0].setTerrainCard(new TerrainCard(1));
 
         state = GameState.cardOrLocationTileSelection;
@@ -184,17 +187,17 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         drawCenteredString(g, "Discard Pile", f, 5, 135, 530);
         // Deck and Discard images
         if (!deck.isEmpty()) { cardBack.setCoords(20, 340); cardBack.displayBack(g); }
-        if (!discardPile.isEmpty()) { 
-        	TerrainCard card = discardPile.get(discardPile.size() - 1);
-        	card.isDarkened = false;
-        	card.setCoords(20, 540);
-        	card.setDimensions(100, 150);
-        	card.displayFront(g);
+        if (!discardPile.isEmpty()) {
+            TerrainCard card = discardPile.get(discardPile.size() - 1);
+            card.isDarkened = false;
+            card.setCoords(20, 540);
+            card.setDimensions(100, 150);
+            card.displayFront(g);
         }
 
         // Player Boxes Display
-        for (int i = 0; i < 4; i++) 
-        	if (i != currentPlayerID && (!isObjectiveExpanded || i % 2 == 0)) players[i].display(g);
+        for (int i = 0; i < 4; i++)
+            if (i != currentPlayerID && (!isObjectiveExpanded || i % 2 == 0)) players[i].display(g);
         players[currentPlayerID].display(g);
         if (tempSettlement != null) tempSettlement.display(g);
 
@@ -235,7 +238,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             height = 40;
             g.drawImage(leftArrow, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, (GAMEBOARD_MARGIN_Y + Gameboard.LARGE_HEIGHT + 25) / 2 + height / 2, 40, height, null);
         } else {
-        	g.drawImage(strip, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH +50 , GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45, null);
+            g.drawImage(strip, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH +50 , GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45, null);
             g.setColor(new Color(119, 47, 47));
             g.drawRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 50 , GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45);
             g.setColor(new Color(242, 235, 205, 200));
@@ -286,15 +289,15 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         int x = (((x2 - x1) - fm.stringWidth(s)) / 2) + x1;
         return x;
     }
-    
+/*
     public void updateScore() {
-    	Player p = players[currentPlayerID];
-    	int score1 = objective1.score(board, p), score2 = objective2.score(board, p), score3 = objective3.score(board, p);
-    	int score = score1 + score2 + score3;
-    	System.out.printf("%s: %d, %s: %d, %s: %d\n", objective1.toString(), score1, objective2.toString(), score2, objective3.toString(), score3);
-    	p.setScore(score);
+        Player p = players[currentPlayerID];
+        int score1 = objective1.score(board, p), score2 = objective2.score(board, p), score3 = objective3.score(board, p);
+        int score = score1 + score2 + score3;
+        System.out.printf("%s: %d, %s: %d, %s: %d\n", objective1.toString(), score1, objective2.toString(), score2, objective3.toString(), score3);
+        p.setScore(score);
     }
-
+*/
     private boolean advanceState, isMovable;
     private Settlement tempSettlement;
     private LocationTile chosenLocationTile;
@@ -304,22 +307,22 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     public void mousePressed(MouseEvent e) {
         int x = e.getX(), y = e.getY();
         if (isBeingDragged) return;
-        
+
         if (endTurnButton.isEnabled() && endTurnButton.contains(x, y)) {
-        	endTurnButton.click();
+            endTurnButton.click();
         }
-        
+
         int locX = GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270;
         int locY = GAMEBOARD_MARGIN_Y - 30;
         if (!isObjectiveExpanded && x >= locX && y >= locY && x <= locX + 40 && y <= locY + Gameboard.LARGE_HEIGHT + 45){
             isObjectiveExpanded=true;
-        } 
+        }
         locX = GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 50;
         locY = GAMEBOARD_MARGIN_Y - 30;
         if (isObjectiveExpanded && x >= locX && y >= locY && x <= locX + 40 && y <= locY + Gameboard.LARGE_HEIGHT + 45){
             isObjectiveExpanded = false;
         } repaint();
-        
+
         switch (state) {
             case cardOrLocationTileSelection:
                 boolean hasOneSelected = false;
@@ -619,20 +622,20 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         int x = e.getX(), y = e.getY();
         Player p = players[currentPlayerID];
         if (endTurnButton.contains(x, y) && endTurnButton.isBeingClicked()) {
-        	discardPile.add(p.getTerrainCard());
-        	if (deck.isEmpty()) {
-        		deck = (ArrayList<TerrainCard>) discardPile.clone();
-        		discardPile.clear();
-        		Collections.shuffle(deck); 
-        	}
-        	p.setTerrainCard(deck.remove(0));
-        	p.resetSettlementCounts(); p.resetUsed();
-        	currentPlayerID++; currentPlayerID %= 4;
-        	  
-        	endTurnButton.unclick(); 
-        	endTurnButton.setEnabled(false);
+            discardPile.add(p.getTerrainCard());
+            if (deck.isEmpty()) {
+                deck = (ArrayList<TerrainCard>) discardPile.clone();
+                discardPile.clear();
+                Collections.shuffle(deck);
+            }
+            p.setTerrainCard(deck.remove(0));
+            p.resetSettlementCounts(); p.resetUsed();
+            currentPlayerID++; currentPlayerID %= 4;
+
+            endTurnButton.unclick();
+            endTurnButton.setEnabled(false);
         }
-        
+
         switch (state) {
             case settlementPlacement:
 //	        	for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
@@ -640,10 +643,10 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 //	                    board.board[i][j].setHighlighted(false);
 //	                }
 //	            }
-            	
+
                 if (tempSettlement != null && !isMovable) {
                     board.board[selectedRow][selectedCol].setSettlement(board, tempSettlement);
-                    updateScore();
+                    //updateScore();
                     tempSettlement = null;
                     if (p.getTerrainCard().isHighlighted) {
                         p.useTerrainCard();
@@ -657,7 +660,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                             state = GameState.cardOrLocationTileSelection;
                         }
                     if (p.getMandatorySettlementsLeft() == 0 && p.getTerrainCard().isHighlighted) {
-                    	if (!endTurnButton.isEnabled()) endTurnButton.setEnabled(true);
+                        if (!endTurnButton.isEnabled()) endTurnButton.setEnabled(true);
                         p.getTerrainCard().setHighlighted(false);
                         p.getTerrainCard().isDarkened = true;
                         state = GameState.cardOrLocationTileSelection;
@@ -678,7 +681,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                                 if (i != selectedRow || j != selectedCol) {
                                     tempSettlement = new Settlement(currentPlayerID, board.board[i][j]);
                                     board.board[i][j].setSettlement(board, tempSettlement);
-                                    updateScore();
+                                    ///updateScore();
                                     board.board[i][j].setHighlighted(true);
                                     state = GameState.cardOrLocationTileSelection;
                                     hasMoved = true;
