@@ -26,7 +26,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     private TerrainCard cardBack = new TerrainCard(-1);
 
     public static Player [] players = new Player[4];
-    static int currentPlayerID = 0;
+    static int currentPlayerID;
 
     private BufferedImage summary1, summary2, summary3, summary4;
     private BufferedImage background, frame, interior, strip, leftArrow, rightArrow;
@@ -142,7 +142,9 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         // Initiating players
         for (int i = 0; i < 4; i++) players[i] = new Player(i);
         for (int i = 0; i < 4; i++) players[i].setTerrainCard(deck.remove(0));
-        players[rand.nextInt(4)].setFirstPLayer(true);
+        int first = rand.nextInt(4);
+        players[first].setFirstPLayer(true);
+        currentPlayerID = first;
         // players[0].setTerrainCard(new TerrainCard(1));
 
         state = GameState.cardOrLocationTileSelection;
