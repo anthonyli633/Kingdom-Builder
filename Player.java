@@ -14,12 +14,13 @@ public class Player {
     private ArrayList<LocationTile> locationTiles = new ArrayList<> (), totalLocationTiles = new ArrayList<> ();
     private ArrayList<int []> settlementLocations = new ArrayList<> ();
     private boolean firstPlayer;
-
+    
+    static Color [] colors = new Color[] {new Color(0, 151, 229), new Color(1, 187, 0), new Color(238, 136, 0), new Color(120, 0, 220)};
     static BufferedImage playerBox;
     static BufferedImage firstPlayerIcon;
 
     public Player(int id) {
-        totalSettlementsLeft = 40; setID(id);
+        totalSettlementsLeft = 5; setID(id);
         resetSettlementCounts();
 
         try {
@@ -42,8 +43,8 @@ public class Player {
 
     public int getScore() { return score; }
     public int getID() { return id; }
-    public int getMandatorySettlementsLeft() { return mandatorySettlementsLeft; }
-    public int getTurnSettlementsLeft() { return turnSettlementsLeft; }
+    public int getMandatorySettlementsLeft() { return mandatorySettlementsLeft = Math.min(mandatorySettlementsLeft, totalSettlementsLeft); }
+    public int getTurnSettlementsLeft() { return turnSettlementsLeft = Math.min(turnSettlementsLeft, totalSettlementsLeft); }
     public int getTotalSettlementsLeft() { return totalSettlementsLeft; }
     public TerrainCard getTerrainCard() { return terrainCard; }
     public ArrayList<LocationTile> getLocationTiles() { return locationTiles; }
@@ -102,7 +103,7 @@ public class Player {
         g.drawImage(playerBox, x, y, width, height, null);
         g.setColor(new Color(242, 235, 205, 200));
         g.fillRect(x, y, width, height);
-        Color c = (id == KingdomBuilderPanel.currentPlayerID ? Color.MAGENTA : new Color(119, 47, 47));
+        Color c = (id == KingdomBuilderPanel.currentPlayerID ? colors[id] : new Color(119, 47, 47));
         g.setColor(c);
         g.drawRect(x, y, width, height);
         g.setColor(Color.BLACK);
