@@ -29,7 +29,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     static int currentPlayerID = 0;
  
     private BufferedImage summary1, summary2, summary3, summary4;
-    private BufferedImage background, frame, interior, strip, leftArrow, rightArrow;
+    private BufferedImage background, frame, interior, strip, leftArrow, rightArrow, KingdomBG;
     private BufferedImage [] objectiveIcons;
     
     private ArrayList<String> gameLog = new ArrayList<String> ();   
@@ -38,6 +38,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     private boolean isObjectiveExpanded = false;
     private Rectangle expandPanel;
 
+    static int screenState = 0;
     static GameState state, prevState;
 
     public KingdomBuilderPanel() {
@@ -45,7 +46,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         addMouseMotionListener(this);
 
         for (int i = 0; i < 4; i++) {
-            try { boards[i] = new Gameboard(new File(System.getProperty("user.dir") + "/src/GameboardFiles/" + Gameboard.names[i] + ".txt")); }
+            try { boards[i] = new Gameboard(getClass().getResourceAsStream("/GameboardFiles/Board " + (i + 1) + ".txt")); }
             catch (IOException e) { e.printStackTrace(); }
         } board = new Gameboard(boards[0], boards[1], boards[2], boards[3]);
 
@@ -53,7 +54,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             objectivesList.add(new ObjectiveCard(i));
         } Collections.shuffle(objectivesList);
         objective1 = objectivesList.get(0); objective2 = objectivesList.get(1); objective3 = objectivesList.get(2);
-        objective1 = new ObjectiveCard(6); objective2= new ObjectiveCard(0); objective3 = new ObjectiveCard(4);
+        // objective1 = new ObjectiveCard(6); objective2= new ObjectiveCard(0); objective3 = new ObjectiveCard(4);
         objective1.setCoords(1263 - ObjectiveCard.WIDTH, 30);
         objective2.setCoords(1263 - ObjectiveCard.WIDTH / 2, 30);
         objective3.setCoords(1263, 30);
@@ -80,17 +81,13 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             endTurnButton.setEnabled(false);
         } catch (Exception e) { e.printStackTrace(); }
         try {
-            BufferedImage img1 = ImageIO.read(this.getClass().getResource("/Images/button.png"));
-            BufferedImage img2 = ImageIO.read(this.getClass().getResource("/Images/button (2).png"));
-            BufferedImage img3 = ImageIO.read(this.getClass().getResource("/Images/button (1).png"));
-        } catch (Exception e) { e.printStackTrace(); }
-        try {
             background = ImageIO.read(this.getClass().getResource("/Images/Light Wood Background.jpg"));
             frame = ImageIO.read(this.getClass().getResource("/Images/Dark Wood Background.png"));
             interior = ImageIO.read(this.getClass().getResource("/Images/Ocean Background.png"));
             strip = ImageIO.read(this.getClass().getResource("/Images/Light Wood Strip.png"));
             leftArrow = ImageIO.read(this.getClass().getResource("/Images/Left Arrow Vector 1.png"));
             rightArrow = ImageIO.read(this.getClass().getResource("/Images/Right Arrow Vector 1.png"));
+            KingdomBG = ImageIO.read(this.getClass().getResource("/Images/KingdomBG.jpg"));
             objectiveIcons = new BufferedImage[ObjectiveCard.names.length];
             for (int i = 0; i < ObjectiveCard.names.length; i++) {
                 objectiveIcons[i] = ImageIO.read(this.getClass().getResource("/Images/" + ObjectiveCard.names[i] + " Icon.png"));
@@ -108,7 +105,8 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         } catch (Exception e) { e.printStackTrace(); }
         try {
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(System.getProperty("user.dir") + "/src/Font/Kingdom Builder Font.ttf")));
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/Font/Kingdom Builder Font.ttf")));
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/Font/TechnoRace.otf")));
         } catch (IOException|FontFormatException e) { e.printStackTrace(); }
 
         // Init Deck
@@ -149,7 +147,13 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 
         state = GameState.cardOrLocationTileSelection;
     }
-
+    
+    static String [] directions = new String [] { "Select your terrain card",
+    											  "Select your terrain card or a location tile",
+    											  "Place a settlement on an avaliable hexagon",
+    											  "Drag a settlement to an avaliable hexagon",
+    											  "End your turn when you are ready"
+    };
     public void paint(Graphics g) {
         g.drawImage(background, 0, 0, WIDTH, HEIGHT, null);
         g.setColor(new Color(255, 255, 255, 150));
@@ -157,125 +161,243 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 
         Graphics2D g2 = (Graphics2D) g;
         g2.setStroke(new BasicStroke(BORDER_WIDTH));
-
         Font f = new Font("Thunder Kingdom", Font.BOLD, 40);
-
-        // Directions display (rectangle)
-        g.setColor(new Color(100, 100, 255));
-        g.fillRoundRect(40, 5, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH, GAMEBOARD_MARGIN_Y - 45, 30, 30);
-        g.setColor(new Color(255, 215, 0));
-        g.drawRoundRect(40, 5, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH, GAMEBOARD_MARGIN_Y - 45, 30, 30);
-        // Directions text display
-        drawCenteredString(g, "Directions", f, 40, 40 + GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH, (GAMEBOARD_MARGIN_Y - 25) * 2 / 3);
-
-        // Gameboard Display
-        g.drawImage(frame, GAMEBOARD_MARGIN_X, GAMEBOARD_MARGIN_Y - 30, Gameboard.LARGE_WIDTH + 35, Gameboard.LARGE_HEIGHT + 45, null);
-        g.setColor(new Color(255, 255, 255, 25));
-        g.fillRect(GAMEBOARD_MARGIN_X, GAMEBOARD_MARGIN_Y - 30, Gameboard.LARGE_WIDTH + 35, Gameboard.LARGE_HEIGHT + 45);
-        g.drawImage(interior, GAMEBOARD_MARGIN_X + 10, GAMEBOARD_MARGIN_Y - 20, Gameboard.LARGE_WIDTH + 15, Gameboard.LARGE_HEIGHT + 25, null);
-        board.display(g, GAMEBOARD_MARGIN_X + 30, GAMEBOARD_MARGIN_Y);
-
-        // Deck and Discard Pile Panel Rectangle
-        g.drawImage(strip, 5, 300, 130, 400, null);
-        g.setColor(new Color(242, 235, 205, 200));
-        g.fillRect(5, 300, 130, 400);
-        g.setColor(new Color(119, 47, 47));
-        g.drawRect(5, 300, 130, 200);
-        g.drawRect(5, 500, 130, 200);
-        g.setColor(Color.BLACK);
-        // Deck and Discard text
-        f = new Font("Thunder Kingdom", Font.BOLD, 16);
-        drawCenteredString(g, "Deck", f, 5, 135, 330);
-        drawCenteredString(g, "Discard Pile", f, 5, 135, 530);
-        // Deck and Discard images
-        if (!deck.isEmpty()) { cardBack.setCoords(20, 340); cardBack.displayBack(g); }
-        if (!discardPile.isEmpty()) { 
-        	TerrainCard card = discardPile.get(discardPile.size() - 1);
-        	card.isDarkened = false;
-        	card.setCoords(20, 540);
-        	card.setDimensions(100, 150);
-        	card.displayFront(g);
+        
+        if(screenState == 0) {
+            g.drawImage(KingdomBG,0,0,WIDTH,HEIGHT,null);
+            g.setColor(Color.black);
+            drawCenteredString(g, "CLICK TO START", f, 0, WIDTH, HEIGHT*7/10 + 50);
         }
-
-        // Player Boxes Display
-        for (int i = 0; i < 4; i++) 
-        	if (i != currentPlayerID && (!isObjectiveExpanded || i % 2 == 0)) players[i].display(g);
-        players[currentPlayerID].display(g);
-        if (tempSettlement != null) tempSettlement.display(g);
-
-//        // Objective Cards Box (Panel) display
-        f = new Font("Thunder Kingdom", Font.BOLD, 20);
-//        // Objective Cards text
-//        g.setColor(Color.BLACK);
-//        drawCenteredString(g, "Objective Cards", f, RHS_START_X, RHS_START_X + 225, 25);
-//        // Objective Cards Display
-//        objective3.display(g); objective2.display(g); objective1.display(g);
-//        if (objective3.isEnlarged()) objective3.display(g);
-//        if (objective2.isEnlarged()) objective2.display(g);
-//        if (objective1.isEnlarged()) objective1.display(g);
-
-        // Summary Location Cards
-        int width = 100, height = 93;
-        g.drawImage(summary1, 75 - width / 2, 80, width, height, null);
-        g.drawImage(summary2, 75 - width / 2, 85 + height, width, height, null);
-        g.drawImage(summary3, 75 - width / 2, 710, width, height, null);
-        g.drawImage(summary4, 75 - width / 2, 715 + height, width, height, null);
-
-        // End Turn Button Display
-        endTurnButton.display(g);
-
-        g.drawImage(strip, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 310, GAMEBOARD_MARGIN_Y - 30, 50, Gameboard.LARGE_HEIGHT + 45, null);
-        g.setColor(new Color(119, 47, 47));
-        g.drawRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 310, GAMEBOARD_MARGIN_Y - 30, 50, Gameboard.LARGE_HEIGHT + 45);
-        g.setColor(new Color(242, 235, 205, 200));
-        g.fillRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 310, GAMEBOARD_MARGIN_Y - 30, 50, Gameboard.LARGE_HEIGHT + 45);
-
-        if (!isObjectiveExpanded) {
-            expandPanel = new Rectangle(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45);
-            g.drawImage(strip, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45, null);
-            g.setColor(new Color(119, 47, 47));
-            g.drawRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45);
-            g.setColor(new Color(242, 235, 205, 200));
-            g.fillRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45);
-            height = 40;
-            g.drawImage(leftArrow, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, (GAMEBOARD_MARGIN_Y + Gameboard.LARGE_HEIGHT + 25) / 2 + height / 2, 40, height, null);
-        } else {
-        	g.drawImage(strip, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH +50 , GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45, null);
-            g.setColor(new Color(119, 47, 47));
-            g.drawRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 50 , GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45);
-            g.setColor(new Color(242, 235, 205, 200));
-            g.fillRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 50 , GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45);
-
-            g.drawImage(strip, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 90, GAMEBOARD_MARGIN_Y - 30, 200, Gameboard.LARGE_HEIGHT + 45, null);
-            g.setColor(new Color(119, 47, 47));
-            g.drawRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 90, GAMEBOARD_MARGIN_Y - 30, 200, Gameboard.LARGE_HEIGHT + 45);
-            g.setColor(new Color(242, 235, 205, 200));
-            g.fillRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 90, GAMEBOARD_MARGIN_Y - 30, 200, Gameboard.LARGE_HEIGHT + 45);
-            height = 40;
-            objective1.setCoords(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH+95, 100);
-            objective2.setCoords(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH+95, 375);
-            objective3.setCoords(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH+95, 650);
-            objective1.display(g);
-            objective2.display(g);
-            objective3.display(g);
-            g.drawImage(rightArrow, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH +50, (GAMEBOARD_MARGIN_Y + Gameboard.LARGE_HEIGHT + 25) / 2 + height / 2, 40, height, null);
+        if (screenState == 1) {
+	        // Directions display (rectangle)
+        	f = new Font("Techno Race Italic", Font.PLAIN, 40);
+	        g.setColor(new Color(242, 235, 205, 200));
+	        g.fillRoundRect(GAMEBOARD_MARGIN_X - 225, 5, 480 + Gameboard.LARGE_WIDTH, GAMEBOARD_MARGIN_Y - 45, 30, 30);
+	        g.setColor(new Color(119, 47, 47));
+	        g.drawRoundRect(GAMEBOARD_MARGIN_X - 225, 5, 480 + Gameboard.LARGE_WIDTH, GAMEBOARD_MARGIN_Y - 45, 30, 30);
+	        // Directions text display
+	        String res = "";
+	        Player p = players[currentPlayerID];
+	        if (state == GameState.cardOrLocationTileSelection) {
+	        	boolean hasAvaliableTerrain = !p.getTerrainCard().isDarkened;
+		        boolean hasAvaliableLocation = false;
+		        for (LocationTile tile: p.getLocationTiles())
+		        	if (!tile.isDarkened) hasAvaliableLocation = true;
+	        	if (!endTurnButton.isEnabled()) {
+	        		if (!hasAvaliableLocation) res = directions[0];
+	        		else res = directions[1];
+	        	} else {
+	        		if (hasAvaliableTerrain && !hasAvaliableLocation) res = directions[0] + " or end your turn";
+	        		else if (hasAvaliableTerrain && hasAvaliableLocation) res = "Select your terrain card, a location tile, or end your turn";
+	        		else if (!hasAvaliableTerrain && hasAvaliableLocation) res = "Select a location tile or end your turn"; 
+	        		else res = directions[4];
+	        	}
+	        }
+	        else {
+	        	if (p.getTerrainCard().isHighlighted) res = directions[2];
+	        	else {
+	        		LocationTile selectedTile = null;
+	        		System.out.println(p.getID() + " " + p.getLocationTiles());
+	        		for (LocationTile tile: p.getLocationTiles()) {
+	        			if (tile.isHighlighted) selectedTile = tile;
+	        		} if ("Barn Harbor Paddock".contains(selectedTile.getName())) res = directions[3];
+	        		else res = directions[2];
+	        	}
+	        }
+	        drawCenteredString(g, res, f, GAMEBOARD_MARGIN_X - 225, 480 + Gameboard.LARGE_WIDTH + GAMEBOARD_MARGIN_X - 225, (GAMEBOARD_MARGIN_Y - 25) * 2 / 3);
+	
+	        // Gameboard Display
+	        g.drawImage(frame, GAMEBOARD_MARGIN_X, GAMEBOARD_MARGIN_Y - 30, Gameboard.LARGE_WIDTH + 35, Gameboard.LARGE_HEIGHT + 45, null);
+	        g.setColor(new Color(255, 255, 255, 25));
+	        g.fillRect(GAMEBOARD_MARGIN_X, GAMEBOARD_MARGIN_Y - 30, Gameboard.LARGE_WIDTH + 35, Gameboard.LARGE_HEIGHT + 45);
+	        g.drawImage(interior, GAMEBOARD_MARGIN_X + 10, GAMEBOARD_MARGIN_Y - 20, Gameboard.LARGE_WIDTH + 15, Gameboard.LARGE_HEIGHT + 25, null);
+	        board.display(g, GAMEBOARD_MARGIN_X + 30, GAMEBOARD_MARGIN_Y);
+	
+	        // Deck and Discard Pile Panel Rectangle
+	        g.drawImage(strip, 5, 300, 130, 400, null);
+	        g.setColor(new Color(242, 235, 205, 200));
+	        g.fillRect(5, 300, 130, 400);
+	        g.setColor(new Color(119, 47, 47));
+	        g.drawRect(5, 300, 130, 200);
+	        g.drawRect(5, 500, 130, 200);
+	        g.setColor(Color.BLACK);
+	        // Deck and Discard text
+	        f = new Font("Thunder Kingdom", Font.BOLD, 16);
+	        drawCenteredString(g, "Deck", f, 5, 135, 330);
+	        drawCenteredString(g, "Discard Pile", f, 5, 135, 530);
+	        // Deck and Discard images
+	        if (!deck.isEmpty()) { cardBack.setCoords(20, 340); cardBack.displayBack(g); }
+	        if (!discardPile.isEmpty()) { 
+	        	TerrainCard card = discardPile.get(discardPile.size() - 1);
+	        	card.isDarkened = false;
+	        	card.setCoords(20, 540);
+	        	card.setDimensions(100, 150);
+	        	card.displayFront(g);
+	        }
+	
+	        // Player Boxes Display
+	        for (int i = 0; i < 4; i++) 
+	        	if (i != currentPlayerID && (!isObjectiveExpanded || i % 2 == 0)) players[i].display(g);
+	        players[currentPlayerID].display(g);
+	        if (tempSettlement != null) tempSettlement.display(g);
+	
+	//        // Objective Cards Box (Panel) display
+	        f = new Font("Thunder Kingdom", Font.BOLD, 20);
+	//        // Objective Cards text
+	//        g.setColor(Color.BLACK);
+	//        drawCenteredString(g, "Objective Cards", f, RHS_START_X, RHS_START_X + 225, 25);
+	//        // Objective Cards Display
+	//        objective3.display(g); objective2.display(g); objective1.display(g);
+	//        if (objective3.isEnlarged()) objective3.display(g);
+	//        if (objective2.isEnlarged()) objective2.display(g);
+	//        if (objective1.isEnlarged()) objective1.display(g);
+	
+	        // Summary Location Cards
+	        int width = 100, height = 93;
+	        g.drawImage(summary1, 75 - width / 2, 80, width, height, null);
+	        g.drawImage(summary2, 75 - width / 2, 85 + height, width, height, null);
+	        g.drawImage(summary3, 75 - width / 2, 710, width, height, null);
+	        g.drawImage(summary4, 75 - width / 2, 715 + height, width, height, null);
+	
+	        // End Turn Button Display
+	        endTurnButton.display(g);
+	
+	        g.drawImage(strip, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 310, GAMEBOARD_MARGIN_Y - 30, 50, Gameboard.LARGE_HEIGHT + 45, null);
+	        g.setColor(new Color(119, 47, 47));
+	        g.drawRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 310, GAMEBOARD_MARGIN_Y - 30, 50, Gameboard.LARGE_HEIGHT + 45);
+	        g.setColor(new Color(242, 235, 205, 200));
+	        g.fillRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 310, GAMEBOARD_MARGIN_Y - 30, 50, Gameboard.LARGE_HEIGHT + 45);
+	
+	        if (!isObjectiveExpanded) {
+	            expandPanel = new Rectangle(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45);
+	            g.drawImage(strip, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45, null);
+	            g.setColor(new Color(119, 47, 47));
+	            g.drawRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45);
+	            g.setColor(new Color(242, 235, 205, 200));
+	            g.fillRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45);
+	            height = 40;
+	            g.drawImage(leftArrow, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270, (GAMEBOARD_MARGIN_Y + Gameboard.LARGE_HEIGHT + 25) / 2 + height / 2, 40, height, null);
+	        } else {
+	        	g.drawImage(strip, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH +50 , GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45, null);
+	            g.setColor(new Color(119, 47, 47));
+	            g.drawRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 50 , GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45);
+	            g.setColor(new Color(242, 235, 205, 200));
+	            g.fillRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 50 , GAMEBOARD_MARGIN_Y - 30, 40, Gameboard.LARGE_HEIGHT + 45);
+	
+	            g.drawImage(strip, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 90, GAMEBOARD_MARGIN_Y - 30, 200, Gameboard.LARGE_HEIGHT + 45, null);
+	            g.setColor(new Color(119, 47, 47));
+	            g.drawRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 90, GAMEBOARD_MARGIN_Y - 30, 200, Gameboard.LARGE_HEIGHT + 45);
+	            g.setColor(new Color(242, 235, 205, 200));
+	            g.fillRect(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 90, GAMEBOARD_MARGIN_Y - 30, 200, Gameboard.LARGE_HEIGHT + 45);
+	            height = 40;
+	            objective1.setCoords(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH+95, 100);
+	            objective2.setCoords(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH+95, 375);
+	            objective3.setCoords(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH+95, 650);
+	            objective1.display(g);
+	            objective2.display(g);
+	            objective3.display(g);
+	            g.drawImage(rightArrow, GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH +50, (GAMEBOARD_MARGIN_Y + Gameboard.LARGE_HEIGHT + 25) / 2 + height / 2, 40, height, null);
+	        }
+	
+	        int gap = (Gameboard.LARGE_HEIGHT + 45) / 3;
+	        g.setColor(Color.BLACK);
+	        ObjectiveCard [] objectives = new ObjectiveCard[] { objective1, objective2, objective3 };
+	        for (int i = 0; i < 3; i++) {
+	            int y = getX(g, ObjectiveCard.names[objective1.getID()], f, GAMEBOARD_MARGIN_Y - 30 + gap * i, GAMEBOARD_MARGIN_Y - 30 + gap * (i + 1), 0) - 10;
+	            g.drawImage(objectiveIcons[objectives[i].getID()], GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 320, y, 30, 30, null);
+	        }
+	
+	        AffineTransform at = new AffineTransform();
+	        at.rotate(Math.PI / 2);
+	        g2.setTransform(at);
+	
+	        for (int i = 0; i < 3; i++) {
+	            int x = getX(g, ObjectiveCard.names[objective1.getID()], f, GAMEBOARD_MARGIN_Y - 30 + gap * i, GAMEBOARD_MARGIN_Y - 30 + gap * (i + 1), 0) + 30;
+	            g.drawString(objectives[i].toString(), x, -(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 325));
+	        }
         }
-
-        int gap = (Gameboard.LARGE_HEIGHT + 45) / 3;
-        g.setColor(Color.BLACK);
-        ObjectiveCard [] objectives = new ObjectiveCard[] { objective1, objective2, objective3 };
-        for (int i = 0; i < 3; i++) {
-            int y = getX(g, ObjectiveCard.names[objective1.getID()], f, GAMEBOARD_MARGIN_Y - 30 + gap * i, GAMEBOARD_MARGIN_Y - 30 + gap * (i + 1), 0) - 10;
-            g.drawImage(objectiveIcons[objectives[i].getID()], GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 320, y, 30, 30, null);
-        }
-
-        AffineTransform at = new AffineTransform();
-        at.rotate(Math.PI / 2);
-        g2.setTransform(at);
-
-        for (int i = 0; i < 3; i++) {
-            int x = getX(g, ObjectiveCard.names[objective1.getID()], f, GAMEBOARD_MARGIN_Y - 30 + gap * i, GAMEBOARD_MARGIN_Y - 30 + gap * (i + 1), 0) + 30;
-            g.drawString(objectives[i].toString(), x, -(GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 325));
+        if (screenState == 2) {
+        	f = new Font("Techno Race Italic", Font.BOLD, 72);
+        	g.setColor(Color.BLACK);
+        	drawCenteredString(g, "Leaderboard", f, 0, WIDTH, 300);
+        	
+        	g.setColor(new Color(182, 141, 103));
+        	int center = WIDTH / 2, y = 350;
+        	int width = 1350, height = 80;
+        	g.fillRect(center - width / 2, y, width, 80);
+        	g.setColor(new Color(220, 182, 146));
+        	y += 100;
+        	for (int i = 0; i < 4; i++) {
+        		g.fillRect(center - width / 2, y, width, height);
+        		y += 90;
+        	}
+        	
+        	int x = 20; y = 400;
+        	g.setColor(Color.BLACK);
+        	g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
+        	g.drawString("Rank", center - width / 2 + x, y);
+        	y += 100;
+        	g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 24));
+        	for (int i = 0; i < 4; i++) {
+        		g.drawString((i + 1) + "", center - width / 2 + x + 30, y);
+        		y += 90;
+        	}
+        	
+        	Player [] leaderboard = players.clone();
+        	Arrays.sort(leaderboard, (p1, p2) -> p2.getScore() - p1.getScore());
+        	
+        	x = 200; y = 400;
+        	g.setColor(Color.BLACK);
+        	g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
+        	g.drawString("Player", center - width / 2 + x, y);
+        	y += 100;
+        	g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 24));
+        	for (int i = 0; i < 4; i++) {
+        		g.drawString("Player " + (leaderboard[i].getID() + 1), center - width / 2 + x, y);
+        		y += 90;
+        	}
+        	
+        	x = 400; y = 400;
+         	g.setColor(Color.BLACK);
+         	g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
+         	g.drawString("Score", center - width / 2 + x, y);
+         	y += 100;
+         	g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 24));
+         	for (int i = 0; i < 4; i++) {
+         		g.drawString(leaderboard[i].getScore() + "", center - width / 2 + x + 40, y);
+         		y += 90;
+         	}
+         	
+         	x = 700; y = 400;
+         	g.setColor(Color.BLACK);
+         	g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
+         	g.drawString(objective1.toString(), center - width / 2 + x, y);
+         	y += 100;
+         	g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 24));
+         	for (int i = 0; i < 4; i++) {
+         		g.drawString(objective1.score(board, leaderboard[i]) + "", center - width / 2 + x + 40, y);
+         		y += 90;
+         	}
+         	x = 900; y = 400;
+         	g.setColor(Color.BLACK);
+         	g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
+         	g.drawString(objective2.toString(), center - width / 2 + x, y);
+         	y += 100;
+         	g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 24));
+         	for (int i = 0; i < 4; i++) {
+         		g.drawString(objective2.score(board, leaderboard[i]) + "", center - width / 2 + x + 40, y);
+         		y += 90;
+         	}
+         	x = 1100; y = 400;
+         	g.setColor(Color.BLACK);
+         	g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
+         	g.drawString(objective3.toString(), center - width / 2 + x, y);
+         	y += 100;
+         	g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 24));
+         	for (int i = 0; i < 4; i++) {
+         		g.drawString(objective3.score(board, leaderboard[i]) + "", center - width / 2 + x + 40, y);
+         		y += 90;
+         	}
         }
     }
 
@@ -296,7 +418,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     	// Player p = players[currentPlayerID];
     	for (Player p: players) {
 	    	int score1 = objective1.score(board, p), score2 = objective2.score(board, p), score3 = objective3.score(board, p);
-	    	int score = score1 + score2 + score3;
+	    	int score = score1 + score2 + score3 + ObjectiveCard.scoreCastle(board, p);
 	    	System.out.printf("%s: %d, %s: %d, %s: %d\n", objective1.toString(), score1, objective2.toString(), score2, objective3.toString(), score3);
 	    	p.setScore(score);
     	}
@@ -313,24 +435,28 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     		} 
     		
     		p.getTerrainCard().isDarkened = true; // p.getTerrainCard().setHighlighted(false);
-    		endPlayerID = currentPlayerID;
     	}
     }
 
     private boolean advanceState, isMovable;
-    private int endPlayerID = -1;
     private Settlement tempSettlement;
     private LocationTile chosenLocationTile;
     private int selectedRow, selectedCol;
     private int diffX, diffY;
+    private boolean isBeingClicked = false;
+    
     @Override
     public void mousePressed(MouseEvent e) {
+    	if (screenState == 0) { screenState++; return; }
         int x = e.getX(), y = e.getY();
         if (isBeingDragged) return;
         
         if (endTurnButton.isEnabled() && endTurnButton.contains(x, y)) {
         	endTurnButton.click();
         }
+        
+//        if (isBeingClicked) return;
+//        isBeingClicked = true;
         
         int locX = GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270;
         int locY = GAMEBOARD_MARGIN_Y - 30;
@@ -458,7 +584,6 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                         }
 
                         if (isMovable && board.board[i][j].contains(x, y) && !board.board[i][j].isDarkened) {
-                            System.out.println("Fikky");
                             tempSettlement = board.board[i][j].getSettlement();
                             if (tempSettlement != null) board.board[i][j].setHighlighted(true);
                             board.board[i][j].removeSettlement(board);
@@ -530,7 +655,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                 }
             }
             for (int [] arr: positions) {
-                board.board[arr[0]][arr[1]].setDarkened(false);
+                if (board.board[arr[0]][arr[1]].getType() < 7) board.board[arr[0]][arr[1]].setDarkened(false);
             }
         }
     }
@@ -566,7 +691,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                 }
             }
             for (int [] arr: positions) {
-                board.board[arr[0]][arr[1]].setDarkened(false);
+                if (board.board[arr[0]][arr[1]].getType() < 7) board.board[arr[0]][arr[1]].setDarkened(false);
             }
         }
     }
@@ -607,7 +732,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             }
         }
         for (int [] arr: positions) {
-        	if (board.board[arr[0]][arr[1]].getType() != 4 && board.board[arr[0]][arr[1]].getType() != 6)
+        	if (board.board[arr[0]][arr[1]].getType() != 4 && board.board[arr[0]][arr[1]].getType() != 6 && board.board[arr[0]][arr[1]].getType() < 7)
         		board.board[arr[0]][arr[1]].setDarkened(false);
         }
     }
@@ -634,7 +759,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             dy = r1 % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
             int r2 = r1 + dx[k], c2 = c1 + dy[k];
             if (Gameboard.isValid(r2, c2) && board.board[r2][c2].getSettlement() == null) {
-                if (board.board[r2][c2].getType() != 4 && board.board[r2][c2].getType() != 6)
+                if (board.board[r2][c2].getType() != 4 && board.board[r2][c2].getType() != 6 && board.board[r2][c2].getType() < 7)
                     board.board[r2][c2].isDarkened = false;
             }
         }
@@ -645,6 +770,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     }
     public void mouseReleased(MouseEvent e) {
         int x = e.getX(), y = e.getY();
+        isBeingClicked = false;
         Player p = players[currentPlayerID];
         if (endTurnButton.contains(x, y) && endTurnButton.isBeingClicked()) {
         	discardPile.add(p.getTerrainCard());
@@ -656,6 +782,9 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         	p.setTerrainCard(deck.remove(0));
         	p.resetSettlementCounts(); p.resetUsed();
         	currentPlayerID++; currentPlayerID %= 4;
+        	if (players[currentPlayerID].getTotalSettlementsLeft() == 0) {
+        		screenState++;
+        	}
         	  
         	endTurnButton.unclick(); 
         	endTurnButton.setEnabled(false);
@@ -672,7 +801,6 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                 if (tempSettlement != null && !isMovable) {
                     board.board[selectedRow][selectedCol].setSettlement(board, tempSettlement);
                     updateScore();
-                    endTurnButton.setEnabled(true);
                     
                     gameLog.add(String.format("Player %d has placed a settlement at (%d, %d)", currentPlayerID + 1, selectedRow, selectedCol));
                     tempSettlement = null;
@@ -691,7 +819,6 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                         }
                     System.out.println(p.getMandatorySettlementsLeft() + " " + p.getTerrainCard().isHighlighted);
                     if (p.getMandatorySettlementsLeft() == 0 && p.getTerrainCard().isHighlighted) {
-                    	System.out.println("L");
                     	if (!endTurnButton.isEnabled()) endTurnButton.setEnabled(true);
                         p.getTerrainCard().setHighlighted(false);
                         p.getTerrainCard().isDarkened = true;
@@ -715,7 +842,6 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                                     board.board[i][j].setSettlement(board, tempSettlement);
                                     updateScore();
                                     checkEndGame();
-                                    endTurnButton.setEnabled(true);
                                     gameLog.add(String.format("Player %d has moved a settlement from (%d, %d) to (%d, %d)", currentPlayerID + 1, selectedRow, selectedCol, i, j));
                                     board.board[i][j].setHighlighted(true);
                                     state = GameState.cardOrLocationTileSelection;
