@@ -31,7 +31,7 @@ public class Gameboard {
     public ArrayList<int []> locationTileCoords = new ArrayList<> ();
 
     /* Initializes a small gameboard */
-    public Gameboard(File file) throws IOException {
+    public Gameboard(InputStream file) throws IOException {
         width = SMALL_WIDTH; height = SMALL_HEIGHT;
         SIZE = SMALL_SIZE;
 
