@@ -20,9 +20,9 @@ public class Player {
     static BufferedImage firstPlayerIcon;
 
     public Player(int id) {
-        totalSettlementsLeft = 5; setID(id);
+        totalSettlementsLeft = 40; setID(id);
         resetSettlementCounts();
-
+        
         try {
             playerBox = ImageIO.read(this.getClass().getResource("/Images/Light Wood Box.png"));
             firstPlayerIcon = ImageIO.read(this.getClass().getResource("/Images/FirstPlayerIcon.png"));
