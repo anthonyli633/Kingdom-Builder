@@ -266,7 +266,24 @@ public class ObjectiveCard {
 			} minSettlements = Math.min(settlements, minSettlements);
 		} return minSettlements * 3;
 	}
-	
+	public static int scoreCastle(Gameboard board, Player p) { 
+		int score = 0;
+		for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
+			for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
+				boolean isAdj = false;
+				if (board.board[i][j].getType() == 8) {
+					int [] dx = i % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
+					int [] dy = i % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
+					for (int k = 0; k < 6; k++) {
+						int r = i + dx[k], c = j + dy[k];
+						if (Gameboard.isValid(r, c) && board.board[r][c].getSettlement() != null && board.board[r][c].getSettlement().getOwnerID() == p.getID()) {
+							isAdj = true;
+						}
+					}
+				} if (isAdj) score++;
+			}
+		} return score * 3;
+	}
 	
 	public static int scoreFisherman(Gameboard board, int row, int col) { 
 		Player p = KingdomBuilderPanel.players[KingdomBuilderPanel.currentPlayerID];
@@ -345,6 +362,14 @@ public class ObjectiveCard {
 		int before = scoreFarmer(board, p);
 		board.board[row][col].setSettlement(board, new Settlement(KingdomBuilderPanel.currentPlayerID, board.board[row][col]));
 		int after = scoreFarmer(board, p);
+		board.board[row][col].removeSettlement(board);
+		return after - before;
+	}
+	public static int scoreCastle(Gameboard board, int row, int col) { 
+		Player p = KingdomBuilderPanel.players[KingdomBuilderPanel.currentPlayerID];
+		int before = scoreCastle(board, p);
+		board.board[row][col].setSettlement(board, new Settlement(KingdomBuilderPanel.currentPlayerID, board.board[row][col]));
+		int after = scoreCastle(board, p);
 		board.board[row][col].removeSettlement(board);
 		return after - before;
 	}
