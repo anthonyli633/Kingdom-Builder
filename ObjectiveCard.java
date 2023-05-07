@@ -88,7 +88,7 @@ public class ObjectiveCard {
 		int score = 0;
 		for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
 			for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
-				if (board.board[i][j].getSettlement() != null && board.board[i][j].getSettlement().getOwnerID() == KingdomBuilderPanel.currentPlayerID) {
+				if (board.board[i][j].getSettlement() != null && board.board[i][j].getSettlement().getOwnerID() == p.getID()) {
 					boolean isAdjacentToWater = false;
 					int [] dx = i % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
 					int [] dy = i % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
@@ -130,7 +130,7 @@ public class ObjectiveCard {
 		for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
 			boolean hasOneSettlement = false;
 			for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
-				if (board.board[i][j].getSettlement() != null && board.board[i][j].getSettlement().getOwnerID() == KingdomBuilderPanel.currentPlayerID) {
+				if (board.board[i][j].getSettlement() != null && board.board[i][j].getSettlement().getOwnerID() == p.getID()) {
 					hasOneSettlement = true;
 				}
 			} score += hasOneSettlement ? 1 : 0;
@@ -183,7 +183,7 @@ public class ObjectiveCard {
 		int score = 0;
 		for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
 			for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
-				if (board.board[i][j].getSettlement() != null && board.board[i][j].getSettlement().getOwnerID() == KingdomBuilderPanel.currentPlayerID) {
+				if (board.board[i][j].getSettlement() != null && board.board[i][j].getSettlement().getOwnerID() == p.getID()) {
 					boolean isAdjacentToMountain = false;
 					int [] dx = i % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
 					int [] dy = i % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
@@ -200,7 +200,7 @@ public class ObjectiveCard {
 		int score = 0;
 		for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
 			for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
-				if (board.board[i][j].getSettlement() != null && board.board[i][j].getSettlement().getOwnerID() == KingdomBuilderPanel.currentPlayerID) {
+				if (board.board[i][j].getSettlement() != null && board.board[i][j].getSettlement().getOwnerID() == p.getID()) {
 					boolean isAdjacentToLocOrCastle = false;
 					int [] dx = i % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
 					int [] dy = i % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
@@ -218,7 +218,7 @@ public class ObjectiveCard {
 		for (int i = 0; i < Gameboard.LARGE_SIZE; i++) {
 			int settlements = 0;
 			for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
-				if (board.board[i][j].getSettlement() != null && board.board[i][j].getSettlement().getOwnerID() == KingdomBuilderPanel.currentPlayerID) {
+				if (board.board[i][j].getSettlement() != null && board.board[i][j].getSettlement().getOwnerID() == p.getID()) {
 					settlements++;
 				}
 			} mostSettlements = Math.max(mostSettlements, settlements);
@@ -259,7 +259,7 @@ public class ObjectiveCard {
 			int settlements = 0;
 			for (int i = 0; i < Gameboard.SMALL_SIZE; i++) {
 				for (int j = 0; j < Gameboard.SMALL_SIZE; j++) {
-					if (smallBoard[i][j].getSettlement() != null && smallBoard[i][j].getSettlement().getOwnerID() == KingdomBuilderPanel.currentPlayerID) {
+					if (smallBoard[i][j].getSettlement() != null && smallBoard[i][j].getSettlement().getOwnerID() == p.getID()) {
 						settlements++;
 					}
 				}
