@@ -14,6 +14,7 @@ public class Player {
     private ArrayList<LocationTile> locationTiles = new ArrayList<> (), totalLocationTiles = new ArrayList<> ();
     private ArrayList<int []> settlementLocations = new ArrayList<> ();
     private boolean firstPlayer;
+    public LocationTile removedLocationTile;
     
     static Color [] colors = new Color[] {new Color(0, 151, 229), new Color(1, 187, 0), new Color(238, 136, 0), new Color(120, 0, 220)};
     static BufferedImage playerBox;
