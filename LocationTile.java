@@ -38,6 +38,6 @@ public class LocationTile extends Hexagon {
     	return getRow() == t.getRow() && getCol() == t.getCol() && id == t.getType();
     }
     public String toString() {
-    	return getRow() + " " + getCol() + " " + id;
+    	return getRow() + " " + getCol() + " " + id + " " + isHighlighted;
     }
 }
