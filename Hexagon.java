@@ -123,10 +123,26 @@ public class Hexagon {
     public Settlement getSettlement() {
         return settlement;
     }
+    
     public void setSettlement(Gameboard board, Settlement settlement) {
         Player p = KingdomBuilderPanel.players[KingdomBuilderPanel.currentPlayerID];
         this.settlement = settlement;
         if (settlement == null) return;
+        System.out.println(p.removedLocationTile);
+        if (p.removedLocationTile != null) {
+        	boolean bordersSameLocationTile = false;
+        	int [] dx = row % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
+            int [] dy = row % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
+        	for (int i = 0; i < 6; i++) {
+        		int r = row + dx[i], c = col + dy[i];
+        		if (Gameboard.isValid(r, c) && board.board[r][c].locationTile != null && board.board[r][c].locationTile.equals(p.removedLocationTile)) {
+        			System.out.println("L");
+        			bordersSameLocationTile = true;
+        		}
+        	} System.out.println(bordersSameLocationTile);
+        	if (!bordersSameLocationTile) p.getLocationTiles().remove(p.removedLocationTile);
+        	p.removedLocationTile = null;
+        }
         int [] dx = row % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
         int [] dy = row % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
         for (int i = 0; i < 6; i++) {
@@ -160,15 +176,13 @@ public class Hexagon {
                     if (board.board[r1][c1].getSettlement() != null && board.board[r1][c1].getSettlement().getOwnerID() == KingdomBuilderPanel.currentPlayerID)
                         hasAdjacentSettlements = true;
                 }
-                System.out.println(hasAdjacentSettlements);
-                System.out.println(p.getLocationTiles() + " " + board.board[r][c].locationTile);
                 if (p.getLocationTiles().contains(board.board[r][c].locationTile) && !hasAdjacentSettlements)
-                    p.getLocationTiles().remove(board.board[r][c].locationTile);
+                	p.removedLocationTile = board.board[r][c].locationTile;
             }
         }
     }
     public int getNumLocationTiles() {
-        return numLocationTiles;
+        return numLocationTiles; 
     }
     public void useLocationTile() {
         numLocationTiles --;
