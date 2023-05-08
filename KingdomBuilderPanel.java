@@ -30,10 +30,11 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
  
     private BufferedImage summary1, summary2, summary3, summary4;
     private BufferedImage background, frame, interior, strip, leftArrow, rightArrow, KingdomBG;
+    private BufferedImage questionMarkIcon, info;
     private BufferedImage [] objectiveIcons;
     
     private ArrayList<String> gameLog = new ArrayList<String> ();   
-    private Button endTurnButton;
+    private Button endTurnButton, backButton;
 
     private boolean isObjectiveExpanded = false;
     private Rectangle expandPanel;
@@ -79,6 +80,13 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             endTurnButton.setWidth(140); endTurnButton.setHeight(50);
             endTurnButton.setCenterCoords(1600, 965);
             endTurnButton.setEnabled(false);
+            BufferedImage img4 = ImageIO.read(this.getClass().getResource("/Images/button (4).png"));
+            BufferedImage img5 = ImageIO.read(this.getClass().getResource("/Images/button (5).png"));
+            BufferedImage img6 = ImageIO.read(this.getClass().getResource("/Images/button (6).png"));
+            backButton = new Button(img4, img5, img6);
+            backButton.setWidth(140); backButton.setHeight(50);
+            backButton.setCenterCoords(200, 965);
+            backButton.setEnabled(true);
         } catch (Exception e) { e.printStackTrace(); }
         try {
             background = ImageIO.read(this.getClass().getResource("/Images/Light Wood Background.jpg"));
@@ -88,6 +96,8 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             leftArrow = ImageIO.read(this.getClass().getResource("/Images/Left Arrow Vector 1.png"));
             rightArrow = ImageIO.read(this.getClass().getResource("/Images/Right Arrow Vector 1.png"));
             KingdomBG = ImageIO.read(this.getClass().getResource("/Images/KingdomBG.jpg"));
+            questionMarkIcon = ImageIO.read(this.getClass().getResource("/Images/Question Mark Icon.png"));
+            info = ImageIO.read(this.getClass().getResource("/Images/Kingdom Builder Info.png"));
             objectiveIcons = new BufferedImage[ObjectiveCard.names.length];
             for (int i = 0; i < ObjectiveCard.names.length; i++) {
                 objectiveIcons[i] = ImageIO.read(this.getClass().getResource("/Images/" + ObjectiveCard.names[i] + " Icon.png"));
@@ -155,6 +165,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     											  "Drag a settlement to an avaliable hexagon",
     											  "End your turn when you are ready"
     };
+    private boolean isShowingInfo = false;
     public void paint(Graphics g) {
         g.drawImage(background, 0, 0, WIDTH, HEIGHT, null);
         g.setColor(new Color(255, 255, 255, 150));
@@ -170,6 +181,10 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             drawCenteredString(g, "CLICK TO START", f, 0, WIDTH, HEIGHT*7/10 + 50);
         }
         if (screenState == 1) {
+        	if (isShowingInfo) {
+        		g.drawImage(info, WIDTH / 2 - 1261 / 2, HEIGHT / 2 - 915 / 2, 1261, 915, null);
+        		return;
+        	}
 	        // Directions display (rectangle)
         	f = new Font("Techno Race Italic", Font.PLAIN, 40);
 	        g.setColor(new Color(242, 235, 205, 200));
@@ -179,7 +194,10 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 	        // Directions text display
 	        String res = "";
 	        Player p = players[currentPlayerID];
-	        if (state == GameState.cardOrLocationTileSelection) {
+	        if (hasReachedLeaderboard) {
+	        	res = "Click the End Turn button to go back to the leaderboard";
+	        }
+	        else if (state == GameState.cardOrLocationTileSelection) {
 	        	boolean hasAvaliableTerrain = !p.getTerrainCard().isDarkened;
 		        boolean hasAvaliableLocation = false;
 		        for (LocationTile tile: p.getLocationTiles())
@@ -203,17 +221,21 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 	        			if (tile.isHighlighted) selectedTile = tile;
 	        		} if ("Barn Harbor Paddock".contains(selectedTile.getName())) res = directions[3];
 	        		else res = directions[2];
+	        		if (endTurnButton.isEnabled()) res += " or end your turn";
 	        	}
 	        }
 	        drawCenteredString(g, res, f, GAMEBOARD_MARGIN_X - 225, 480 + Gameboard.LARGE_WIDTH + GAMEBOARD_MARGIN_X - 225, (GAMEBOARD_MARGIN_Y - 25) * 2 / 3);
 	
+	        // Icon
+	        g.drawImage(questionMarkIcon, 150, 950, 40, 40, null);
+	        
 	        // Gameboard Display
 	        g.drawImage(frame, GAMEBOARD_MARGIN_X, GAMEBOARD_MARGIN_Y - 30, Gameboard.LARGE_WIDTH + 35, Gameboard.LARGE_HEIGHT + 45, null);
 	        g.setColor(new Color(255, 255, 255, 25));
 	        g.fillRect(GAMEBOARD_MARGIN_X, GAMEBOARD_MARGIN_Y - 30, Gameboard.LARGE_WIDTH + 35, Gameboard.LARGE_HEIGHT + 45);
 	        g.drawImage(interior, GAMEBOARD_MARGIN_X + 10, GAMEBOARD_MARGIN_Y - 20, Gameboard.LARGE_WIDTH + 15, Gameboard.LARGE_HEIGHT + 25, null);
 	        board.display(g, GAMEBOARD_MARGIN_X + 30, GAMEBOARD_MARGIN_Y);
-	
+	        
 	        // Deck and Discard Pile Panel Rectangle
 	        g.drawImage(strip, 5, 300, 130, 400, null);
 	        g.setColor(new Color(242, 235, 205, 200));
@@ -322,6 +344,8 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         	g.setColor(Color.BLACK);
         	drawCenteredString(g, "Leaderboard", f, 0, WIDTH, 300);
         	
+        	backButton.display(g);
+        	
         	g.setColor(new Color(182, 141, 103));
         	int center = WIDTH / 2, y = 350;
         	int width = 1350, height = 80;
@@ -369,7 +393,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
          		y += 90;
          	}
          	
-         	x = 700; y = 400;
+         	x = 600; y = 400;
          	g.setColor(Color.BLACK);
          	g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
          	g.drawString(objective1.toString(), center - width / 2 + x, y);
@@ -379,7 +403,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
          		g.drawString(objective1.score(board, leaderboard[i]) + "", center - width / 2 + x + 40, y);
          		y += 90;
          	}
-         	x = 900; y = 400;
+         	x = 800; y = 400;
          	g.setColor(Color.BLACK);
          	g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
          	g.drawString(objective2.toString(), center - width / 2 + x, y);
@@ -389,7 +413,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
          		g.drawString(objective2.score(board, leaderboard[i]) + "", center - width / 2 + x + 40, y);
          		y += 90;
          	}
-         	x = 1100; y = 400;
+         	x = 1000; y = 400;
          	g.setColor(Color.BLACK);
          	g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
          	g.drawString(objective3.toString(), center - width / 2 + x, y);
@@ -397,6 +421,16 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
          	g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 24));
          	for (int i = 0; i < 4; i++) {
          		g.drawString(objective3.score(board, leaderboard[i]) + "", center - width / 2 + x + 40, y);
+         		y += 90;
+         	}
+         	x = 1200; y = 400;
+         	g.setColor(Color.BLACK);
+         	g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
+         	g.drawString("Castle", center - width / 2 + x, y);
+         	y += 100;
+         	g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 24));
+         	for (int i = 0; i < 4; i++) {
+         		g.drawString(ObjectiveCard.scoreCastle(board, leaderboard[i]) + "", center - width / 2 + x + 40, y);
          		y += 90;
          	}
         }
@@ -448,19 +482,34 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     private int diffX, diffY;
     private boolean isBeingClicked = false;
     
+    public double getDist(int x1, int y1, int x2, int y2) {
+    	return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+    }
+    
     @Override
     public void mousePressed(MouseEvent e) {
+    	if (e.getButton() != e.BUTTON1) return;
     	if (screenState == 0) { screenState++; return; }
+    	if (isShowingInfo && screenState == 1) { isShowingInfo = false; return; }
         int x = e.getX(), y = e.getY();
         if (isBeingDragged) return;
         
-        if (endTurnButton.isEnabled() && endTurnButton.contains(x, y)) {
+        if (screenState == 1 && endTurnButton.isEnabled() && endTurnButton.contains(x, y)) {
         	endTurnButton.click();
         	return;
         }
+        if (screenState == 2 && backButton.isEnabled() && backButton.contains(x, y)) {
+        	backButton.click();
+        	return;
+        }
         
-//        if (isBeingClicked) return;
-//        isBeingClicked = true;
+        // g.drawImage(questionMarkIcon, 150, 950, 40, 40, null);
+        // Pressed Icon
+        System.out.println(getDist(x, y, 170, 970));
+        System.out.println(x + " " + y);
+        if (!isShowingInfo && getDist(x, y, 170, 970) <= 20) {
+        	isShowingInfo = true;
+        }
         
         int locX = GAMEBOARD_MARGIN_X + Gameboard.LARGE_WIDTH + 270;
         int locY = GAMEBOARD_MARGIN_Y - 30;
@@ -780,29 +829,39 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     public void mouseClicked(MouseEvent e) {
 
     }
+    private boolean hasReachedLeaderboard = false;
     public void mouseReleased(MouseEvent e) {
+    	if (e.getButton() != e.BUTTON1) return;
         int x = e.getX(), y = e.getY();
         isBeingClicked = false;
         Player p = players[currentPlayerID];
-        if (endTurnButton.contains(x, y) && endTurnButton.isBeingClicked()) {
+        if (screenState == 1 && endTurnButton.contains(x, y) && endTurnButton.isBeingClicked()) {
         	discardPile.add(p.getTerrainCard());
         	if (deck.isEmpty()) {
         		deck = (ArrayList<TerrainCard>) discardPile.clone();
         		discardPile.clear();
         		Collections.shuffle(deck); 
         	}
+        	undarkenHexagons();
         	for (LocationTile tile: p.getLocationTiles())
         		tile.setHighlighted(false);
         	p.setTerrainCard(deck.remove(0));
         	p.resetSettlementCounts(); p.resetUsed();
-        	currentPlayerID++; currentPlayerID %= 4;
+        	if (!hasReachedLeaderboard) { currentPlayerID++; currentPlayerID %= 4; }
         	if (players[currentPlayerID].getTotalSettlementsLeft() == 0) {
+        		hasReachedLeaderboard = true;
         		screenState++;
         	} state = GameState.cardOrLocationTileSelection;
         	  
         	endTurnButton.unclick(); 
         	endTurnButton.setEnabled(false);
-        }
+        } 
+        
+        if (screenState == 2 && backButton.contains(x, y) && backButton.isBeingClicked()) {
+        	screenState = 1;
+        	if (players[currentPlayerID].getTotalSettlementsLeft() == 0) endTurnButton.setEnabled(true);
+        	backButton.unclick(); 
+        } 
         
         switch (state) {
             case settlementPlacement:
@@ -897,7 +956,8 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     @Override
     public void mouseMoved(MouseEvent e) {
         int x = e.getX(), y = e.getY();
-        endTurnButton.setHovering(endTurnButton.contains(x, y));
+        if (screenState == 1) endTurnButton.setHovering(endTurnButton.contains(x, y));
+        if (screenState == 2) backButton.setHovering(backButton.contains(x, y));
         repaint();
     }
 
