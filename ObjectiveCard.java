@@ -222,7 +222,6 @@ public class ObjectiveCard {
 					settlements++;
 				}
 			} mostSettlements = Math.max(mostSettlements, settlements);
-			System.out.println(settlements);
 		} return mostSettlements * 2;
 	}
 	public static int scoreLord(Gameboard board, Player p) { 
@@ -243,7 +242,6 @@ public class ObjectiveCard {
 			int max1 = vals[3][1];
 			int max2 = 0;
 			for (int [] i: vals) if (i[1] < max1) max2 = i[1];
-			System.out.println(max1 + " " + max2);
 			for (int [] i: vals) {
 				if (i[0] == p.getID()) {
 					if (i[1] == max1 && i[1] > 0) score += 12;
