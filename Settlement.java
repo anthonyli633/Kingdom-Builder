@@ -10,7 +10,7 @@ public class Settlement {
     private int topLeftX, topLeftY;
 
     public Settlement(int ownerID, Hexagon hexagon){
-        this.ownerID = ownerID;
+        this.ownerID = ownerID; 
         this.hexagon = hexagon;
         topLeftX = hexagon.getCenterCoords().x - (int) Math.round(Hexagon.SIDE_LENGTH * Math.sqrt(3) / 2);
         topLeftY = hexagon.getCenterCoords().y - (int) Math.round(Hexagon.SIDE_LENGTH);
@@ -21,6 +21,7 @@ public class Settlement {
     public void setCoords(int x, int y) {
     	topLeftX = x; topLeftY = y;
     }
+    public Hexagon getHexagon() { return hexagon; }
     
     public void display(Graphics g) {
         int size = 30;
