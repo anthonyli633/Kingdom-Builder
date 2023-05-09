@@ -128,7 +128,7 @@ public class Hexagon {
         Player p = KingdomBuilderPanel.players[KingdomBuilderPanel.currentPlayerID];
         this.settlement = settlement;
         if (settlement == null) return;
-        System.out.println(p.removedLocationTile);
+        System.out.println("Removed location tile: " + p.removedLocationTile);
         if (p.removedLocationTile != null) {
         	boolean bordersSameLocationTile = false;
         	int [] dx = row % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
@@ -167,7 +167,7 @@ public class Hexagon {
         int [] dy = row % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
         for (int i = 0; i < 6; i++) {
             int r = row + dx[i], c = col + dy[i];
-            if (Gameboard.isValid(r, c) && board.board[r][c].getNumLocationTiles() > 0) {
+            if (Gameboard.isValid(r, c) && board.board[r][c].locationTile != null) {
                 boolean hasAdjacentSettlements = false;
                 dx = r % 2 == 0 ? Gameboard.dxEvens : Gameboard.dxOdds;
                 dy = r % 2 == 0 ? Gameboard.dyEvens : Gameboard.dyOdds;
@@ -175,9 +175,11 @@ public class Hexagon {
                     int r1 = r + dx[j], c1 = c + dy[j];
                     if (board.board[r1][c1].getSettlement() != null && board.board[r1][c1].getSettlement().getOwnerID() == KingdomBuilderPanel.currentPlayerID)
                         hasAdjacentSettlements = true;
-                }
-                if (p.getLocationTiles().contains(board.board[r][c].locationTile) && !hasAdjacentSettlements)
+                } System.out.println("has adj " + hasAdjacentSettlements);
+                if (p.getLocationTiles().contains(board.board[r][c].locationTile) && !hasAdjacentSettlements) {
                 	p.removedLocationTile = board.board[r][c].locationTile;
+                	System.out.println("Removed Location Tile 2 - " + p.removedLocationTile);
+                }
             }
         }
     }
