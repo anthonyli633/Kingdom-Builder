@@ -97,7 +97,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
             rightArrow = ImageIO.read(this.getClass().getResource("/Images/Right Arrow Vector 1.png"));
             KingdomBG = ImageIO.read(this.getClass().getResource("/Images/KingdomBG.jpg"));
             questionMarkIcon = ImageIO.read(this.getClass().getResource("/Images/Question Mark Icon.png"));
-            info = ImageIO.read(this.getClass().getResource("/Images/Kingdom Builder Info.png"));
+            info = ImageIO.read(this.getClass().getResource("/Images/Kingdom Builder Info.jpg"));
             objectiveIcons = new BufferedImage[ObjectiveCard.names.length];
             for (int i = 0; i < ObjectiveCard.names.length; i++) {
                 objectiveIcons[i] = ImageIO.read(this.getClass().getResource("/Images/" + ObjectiveCard.names[i] + " Icon.png"));
@@ -161,8 +161,8 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     
     static String [] directions = new String [] { "Select your terrain card",
     											  "Select your terrain card or a location tile",
-    											  "Place a settlement on an avaliable hexagon",
-    											  "Drag a settlement to an avaliable hexagon",
+    											  "Place a settlement on an available hexagon",
+    											  "Drag a settlement to an available hexagon",
     											  "End your turn when you are ready"
     };
     private boolean isShowingInfo = false;
@@ -216,7 +216,6 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
 	        	if (p.getTerrainCard().isHighlighted) res = directions[2];
 	        	else {
 	        		LocationTile selectedTile = null;
-	        		System.out.println(p.getID() + " " + p.getLocationTiles());
 	        		for (LocationTile tile: p.getLocationTiles()) {
 	        			if (tile.isHighlighted) selectedTile = tile;
 	        		} if ("Barn Harbor Paddock".contains(selectedTile.getName())) res = directions[3];
@@ -488,10 +487,12 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
     
     @Override
     public void mousePressed(MouseEvent e) {
+    	System.out.println(state + " " + isMovable + " " + tempSettlement);
     	if (e.getButton() != e.BUTTON1) return;
     	if (screenState == 0) { screenState++; return; }
     	if (isShowingInfo && screenState == 1) { isShowingInfo = false; return; }
         int x = e.getX(), y = e.getY();
+        System.out.println(isBeingDragged);
         if (isBeingDragged) return;
         
         if (screenState == 1 && endTurnButton.isEnabled() && endTurnButton.contains(x, y)) {
@@ -505,8 +506,6 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
         
         // g.drawImage(questionMarkIcon, 150, 950, 40, 40, null);
         // Pressed Icon
-        System.out.println(getDist(x, y, 170, 970));
-        System.out.println(x + " " + y);
         if (!isShowingInfo && getDist(x, y, 170, 970) <= 20) {
         	isShowingInfo = true;
         }
@@ -625,6 +624,9 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                     for (int j = 0; j < Gameboard.LARGE_SIZE; j++) {
                         board.board[i][j].setHighlighted(false);
                     }
+                } if (isMovable && tempSettlement != null) {
+                	System.out.println("olf dos");
+                	board.board[tempSettlement.getHexagon().getRow()][tempSettlement.getHexagon().getCol()].setHighlighted(true);
                 }
                 Player p = players[currentPlayerID];
                 hasOneSelected = false;
@@ -640,6 +642,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                         }
 
                         if (isMovable && board.board[i][j].contains(x, y) && !board.board[i][j].isDarkened) {
+                        	if (board.board[i][j].getSettlement() == null) { System.out.println("L"); break out; }
                             tempSettlement = board.board[i][j].getSettlement();
                             if (tempSettlement != null) board.board[i][j].setHighlighted(true);
                             board.board[i][j].removeSettlement(board);
@@ -649,7 +652,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                         }
                     }
                 }
-                if (!hasOneSelected) tempSettlement = null;
+                if (!hasOneSelected && !isMovable) tempSettlement = null;
                 if (tempSettlement != null) {
                     diffX = x - tempSettlement.getTopLeftX(); diffY = y - tempSettlement.getTopLeftY();
                     if (chosenLocationTile != null) {
@@ -902,7 +905,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                         } undarkenHexagons();
                     }
                     break;
-                } else if (tempSettlement != null && isMovable) {
+                } else if (tempSettlement != null && isMovable && isBeingDragged) {
                     //undarkenHexagons();
                     int centerX = tempSettlement.getTopLeftX() + 22, centerY = tempSettlement.getTopLeftY() + 24;
                     boolean hasMoved = false;
@@ -939,7 +942,7 @@ public class KingdomBuilderPanel extends JPanel implements MouseMotionListener, 
                         undarkenHexagons();
                     }
                     break;
-                }
+                } isBeingDragged = false;
         }
         if (p.getMandatorySettlementsLeft() == 0) {
         	endTurnButton.setEnabled(true);
